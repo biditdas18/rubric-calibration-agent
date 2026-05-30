@@ -16,7 +16,7 @@ from judge_agent import (
 from coordinator_agent import run_coordinator
 
 # ── CONFIG ────────────────────────────────────────────────
-MAX_TIME_SECONDS = 60 * 60   # 1 hour — enough for 3-model batched sweep
+MAX_TIME_SECONDS = 3 * 60 * 60  # 3 hours
 MAX_ITERATIONS   = 10
 TARGET_AGREEMENT = 0.85
 MIN_DELTA        = 0.02
@@ -41,45 +41,65 @@ def load_transcripts(path: str) -> dict:
     return domain_transcripts
 
 
-def evaluate_domain_batched(
-    transcripts: list,
-    domain: str,
-    rubric: dict,
-    irreducible_indices: set
+def run_iteration(
+    transcripts_by_domain: dict,
+    domains: list,
+    domain_state: dict
 ) -> dict:
     """
-    Batch evaluation: all transcripts through model 1, then model 2, then
-    model 3 — each model stays loaded in GPU memory for its full pass.
-    3 model loads total instead of len(transcripts)*3.
+    One full iteration:
+      Model 1 → all domains → Model 2 → all domains → Model 3 → all domains
+    3 model loads total regardless of domain count.
+    Returns per-domain eval results.
     """
-    active = [t for t in transcripts if t["index"] not in irreducible_indices]
+    # Collect active transcripts per domain
+    active_by_domain = {
+        d: [t for t in transcripts_by_domain[d]
+            if t["index"] not in domain_state[d]["irreducible"]]
+        for d in domains
+        if not domain_state[d]["converged"]
+        and domain_state[d]["iteration"] < MAX_ITERATIONS
+    }
 
-    results_by_model = {}
+    if not active_by_domain:
+        return {}
+
+    # results_by_model_domain[model][domain] = [result, ...]
+    results_store = {m: {} for m in JUDGE_MODELS}
+
     for model in JUDGE_MODELS:
         short = model.split(":")[0]
-        print(f"    [{short}] evaluating {len(active)} transcripts...", flush=True)
-        results_by_model[model] = run_all_transcripts_one_model(
-            transcripts=active,
-            domain=domain,
-            rubric=rubric,
-            model=model
-        )
+        total_calls = sum(len(v) for v in active_by_domain.values())
+        print(f"\n  [{short}] evaluating all domains "
+              f"({total_calls} transcripts)...", flush=True)
+        for domain, transcripts in active_by_domain.items():
+            results_store[model][domain] = run_all_transcripts_one_model(
+                transcripts=transcripts,
+                domain=domain,
+                rubric=domain_state[domain]["rubric"],
+                model=model
+            )
 
-    merged = merge_model_results(active, results_by_model)
+    # Merge per domain
+    eval_results = {}
+    for domain, transcripts in active_by_domain.items():
+        results_by_model = {m: results_store[m][domain] for m in JUDGE_MODELS}
+        merged = merge_model_results(transcripts, results_by_model)
 
-    agreements    = sum(1 for r in merged if r["all_agree"])
-    disagreements = [r for r in merged if not r["all_agree"]]
-    total         = len(merged)
-    agreement_rate = agreements / total if total > 0 else 0
+        agreements    = sum(1 for r in merged if r["all_agree"])
+        disagreements = [r for r in merged if not r["all_agree"]]
+        total         = len(merged)
 
-    return {
-        "agreement_rate":       agreement_rate,
-        "total_evaluated":      total,
-        "agreements":           agreements,
-        "disagreements":        len(disagreements),
-        "disagreement_details": disagreements,
-        "all_results":          merged
-    }
+        eval_results[domain] = {
+            "agreement_rate":       agreements / total if total > 0 else 0,
+            "total_evaluated":      total,
+            "agreements":           agreements,
+            "disagreements":        len(disagreements),
+            "disagreement_details": disagreements,
+            "all_results":          merged
+        }
+
+    return eval_results
 
 
 def run_calibration():
@@ -104,18 +124,21 @@ def run_calibration():
         for d in domains
     }
 
+    total_transcripts = sum(len(v) for v in transcripts_by_domain.values())
+
     print(f"\n{'='*60}")
-    print("SNR RUBRIC CALIBRATION — 3 MODELS, BATCHED BY MODEL")
+    print("SNR RUBRIC CALIBRATION — 3 MODELS, BATCHED BY MODEL+DOMAIN")
     print(f"{'='*60}")
-    print(f"Evaluation order: all transcripts per model before switching")
+    print(f"Evaluation order per iteration:")
+    print(f"  Model 1 (all domains) → Model 2 (all domains) → Model 3 (all domains)")
+    print(f"  = 3 model loads per iteration total")
     print(f"Judge models (temperature={JUDGE_TEMPERATURE}):")
     for m in JUDGE_MODELS:
         print(f"  • {m}")
     print(f"Coordinator: claude-sonnet-4-20250514")
     print(f"Target: {TARGET_AGREEMENT:.0%} | "
-          f"Max iter: {MAX_ITERATIONS} | Max time: 60 min")
-    print(f"Transcripts: {sum(len(v) for v in transcripts_by_domain.values())} "
-          f"across {len(domains)} domains")
+          f"Max iter: {MAX_ITERATIONS} | Max time: 3 hours")
+    print(f"Transcripts: {total_transcripts} across {len(domains)} domains")
     print(f"{'='*60}\n")
 
     iteration = 0
@@ -130,7 +153,7 @@ def run_calibration():
         print(f"{'─'*60}")
 
         if elapsed > MAX_TIME_SECONDS:
-            print("STOPPING: Time limit (60 min)")
+            print("STOPPING: Time limit (3 hours)")
             break
         if all(s["converged"] for s in domain_state.values()):
             print("STOPPING: All domains converged")
@@ -139,31 +162,24 @@ def run_calibration():
             print("STOPPING: Max iterations")
             break
 
-        any_active = False
+        eval_results = run_iteration(
+            transcripts_by_domain, domains, domain_state
+        )
 
+        if not eval_results:
+            print("\nAll domains done.")
+            break
+
+        # Process results per domain
         for domain in domains:
-            state = domain_state[domain]
-
-            if state["converged"]:
+            if domain not in eval_results:
                 print(f"\n[{domain}] Converged ✓ — skipping")
                 continue
-            if state["iteration"] >= MAX_ITERATIONS:
-                print(f"\n[{domain}] Max iterations — skipping")
-                continue
 
-            any_active = True
-            n = len(transcripts_by_domain[domain])
-            print(f"\n[{domain}] {n} transcripts × 3 models = {n*3} calls "
-                  f"(3 model loads)", flush=True)
+            state       = domain_state[domain]
+            eval_result = eval_results[domain]
+            agreement   = eval_result["agreement_rate"]
 
-            eval_result = evaluate_domain_batched(
-                transcripts_by_domain[domain],
-                domain,
-                state["rubric"],
-                state["irreducible"]
-            )
-
-            agreement = eval_result["agreement_rate"]
             state["agreement_history"].append(agreement)
             state["iteration"] += 1
 
@@ -171,6 +187,7 @@ def run_calibration():
                      if len(state["agreement_history"]) > 1 else 0)
             delta = agreement - prev
 
+            print(f"\n[{domain}]")
             print(f"  Agreement: {agreement:.1%} (Δ {delta:+.1%})")
             print(f"  All agree: {eval_result['agreements']} / "
                   f"{eval_result['total_evaluated']}")
@@ -222,10 +239,6 @@ def run_calibration():
 
             state["final_results"] = eval_result
 
-        if not any_active:
-            print("\nAll domains done.")
-            break
-
     # ── SAVE OUTPUTS ─────────────────────────────────────
     print(f"\n{'='*60}")
     print("SAVING OUTPUTS")
@@ -263,14 +276,14 @@ def run_calibration():
     print(f"✓ {labels_out}")
 
     summary = {
-        "run_timestamp":      datetime.now().isoformat(),
-        "total_time_minutes": round((time.time() - start_time) / 60, 2),
-        "total_iterations":   iteration,
-        "target_agreement":   TARGET_AGREEMENT,
-        "judge_models":       JUDGE_MODELS,
-        "judge_temperature":  JUDGE_TEMPERATURE,
-        "coordinator_model":  "claude-sonnet-4-20250514",
-        "evaluation_strategy": "batched_by_model",
+        "run_timestamp":        datetime.now().isoformat(),
+        "total_time_minutes":   round((time.time() - start_time) / 60, 2),
+        "total_iterations":     iteration,
+        "target_agreement":     TARGET_AGREEMENT,
+        "judge_models":         JUDGE_MODELS,
+        "judge_temperature":    JUDGE_TEMPERATURE,
+        "coordinator_model":    "claude-sonnet-4-20250514",
+        "evaluation_strategy":  "batched_by_model_then_domain",
         "domains": {}
     }
 
