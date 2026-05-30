@@ -135,7 +135,7 @@ def run_calibration():
     print(f"Judge models (temperature={JUDGE_TEMPERATURE}):")
     for m in JUDGE_MODELS:
         print(f"  • {m}")
-    print(f"Coordinator: claude-sonnet-4-5")
+    print(f"Coordinator: claude-sonnet-4-6")
     print(f"Target: {TARGET_AGREEMENT:.0%} | "
           f"Max iter: {MAX_ITERATIONS} | Max time: 3 hours")
     print(f"Transcripts: {total_transcripts} across {len(domains)} domains")
@@ -262,9 +262,15 @@ def run_calibration():
                     "votes_high":       r["votes"]["HIGH"],
                     "votes_low":        r["votes"]["LOW"],
                     "all_agree":        r["all_agree"],
-                    "llama_label":      r["individual_results"][0]["label"],
-                    "mistral_label":    r["individual_results"][1]["label"],
-                    "gemma_label":      r["individual_results"][2]["label"]
+                    "llama_label":         r["individual_results"][0]["label"],
+                    "mistral_label":       r["individual_results"][1]["label"],
+                    "gemma_label":         r["individual_results"][2]["label"],
+                    "llama_criterion":     r["individual_results"][0].get(
+                                              "criterion_quote", ""),
+                    "mistral_criterion":   r["individual_results"][1].get(
+                                              "criterion_quote", ""),
+                    "gemma_criterion":     r["individual_results"][2].get(
+                                              "criterion_quote", "")
                 })
 
     labels_out = os.path.join(REPORT_DIR, "calibrated_labels.csv")
@@ -282,7 +288,7 @@ def run_calibration():
         "target_agreement":     TARGET_AGREEMENT,
         "judge_models":         JUDGE_MODELS,
         "judge_temperature":    JUDGE_TEMPERATURE,
-        "coordinator_model":    "claude-sonnet-4-5",
+        "coordinator_model":    "claude-sonnet-4-6",
         "evaluation_strategy":  "batched_by_model_then_domain",
         "domains": {}
     }

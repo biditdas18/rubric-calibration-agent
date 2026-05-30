@@ -20,12 +20,17 @@ def build_coordinator_prompt(
             r["model"].split(":")[0]: r["reason"]
             for r in d["individual_results"]
         }
+        criterion_quotes = {
+            r["model"].split(":")[0]: r.get("criterion_quote", "")
+            for r in d["individual_results"]
+        }
         disagreement_text += f"""
 Transcript {i+1} (excerpt):
 {d['transcript'][:400]}...
 
 Model votes: {model_votes}
 Reasons per model: {reasons}
+Decisive criterion per model: {criterion_quotes}
 HIGH criteria matched: {[r['matched_high'] for r in d['individual_results']]}
 LOW criteria matched: {[r['matched_low'] for r in d['individual_results']]}
 ---"""
@@ -118,7 +123,7 @@ def run_coordinator(
 
     try:
         message = client.messages.create(
-            model="claude-sonnet-4-5",
+            model="claude-sonnet-4-6",
             max_tokens=2000,
             messages=[{"role": "user", "content": prompt}]
         )

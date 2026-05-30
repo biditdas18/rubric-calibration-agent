@@ -45,7 +45,8 @@ LABEL: HIGH or LOW
 CONFIDENCE: HIGH or MEDIUM or LOW
 MATCHED_HIGH: comma-separated numbers of HIGH criteria matched (e.g. "1,3")
 MATCHED_LOW: comma-separated numbers of LOW criteria matched (e.g. "2")
-REASON: one sentence explaining the primary factor"""
+REASON: one sentence explaining the primary factor
+CRITERION_QUOTE: copy the exact text of the single criterion that most influenced your decision"""
 
 
 def judge_transcript(
@@ -72,6 +73,7 @@ def judge_transcript(
             "matched_high": [],
             "matched_low": [],
             "reason": "",
+            "criterion_quote": "",
             "raw": text
         }
 
@@ -96,6 +98,10 @@ def judge_transcript(
                 ]
             elif line.startswith("REASON:"):
                 result["reason"] = line.replace("REASON:", "").strip()
+            elif line.startswith("CRITERION_QUOTE:"):
+                result["criterion_quote"] = line.replace(
+                    "CRITERION_QUOTE:", ""
+                ).strip()
 
         if result["label"] is None:
             text_upper = text.upper()
@@ -111,6 +117,7 @@ def judge_transcript(
             "matched_high": [],
             "matched_low": [],
             "reason": f"Error: {str(e)}",
+            "criterion_quote": "",
             "raw": ""
         }
 
