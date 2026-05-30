@@ -135,7 +135,7 @@ def run_calibration():
     print(f"Judge models (temperature={JUDGE_TEMPERATURE}):")
     for m in JUDGE_MODELS:
         print(f"  • {m}")
-    print(f"Coordinator: claude-sonnet-4-20250514")
+    print(f"Coordinator: claude-sonnet-4-5")
     print(f"Target: {TARGET_AGREEMENT:.0%} | "
           f"Max iter: {MAX_ITERATIONS} | Max time: 3 hours")
     print(f"Transcripts: {total_transcripts} across {len(domains)} domains")
@@ -282,7 +282,7 @@ def run_calibration():
         "target_agreement":     TARGET_AGREEMENT,
         "judge_models":         JUDGE_MODELS,
         "judge_temperature":    JUDGE_TEMPERATURE,
-        "coordinator_model":    "claude-sonnet-4-20250514",
+        "coordinator_model":    "claude-sonnet-4-5",
         "evaluation_strategy":  "batched_by_model_then_domain",
         "domains": {}
     }
