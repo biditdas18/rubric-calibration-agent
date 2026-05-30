@@ -62,7 +62,7 @@ def judge_transcript(
         response = ollama.chat(
             model=model,
             messages=[{"role": "user", "content": prompt}],
-            options={"temperature": temperature, "num_predict": 200}
+            options={"temperature": temperature, "num_predict": 300}
         )
         text = response["message"]["content"].strip()
 
