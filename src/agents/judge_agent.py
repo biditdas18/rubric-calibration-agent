@@ -1,5 +1,15 @@
 import ollama
 
+# Three genuinely different models — same temperature
+# Variation comes from architecture differences, not randomness
+JUDGE_MODELS = [
+    "llama3.1:latest",   # Meta — 8B
+    "mistral:latest",    # Mistral AI — 7B
+    "gemma2:latest",     # Google — 9B
+]
+
+JUDGE_TEMPERATURE = 0.1  # Same for all three — controlled evaluation
+
 
 def build_judge_prompt(transcript: str, domain: str, rubric: dict) -> str:
     high_criteria = "\n".join(
@@ -42,7 +52,8 @@ def judge_transcript(
     transcript: str,
     domain: str,
     rubric: dict,
-    model: str = "llama3.1:latest"
+    model: str,
+    temperature: float = JUDGE_TEMPERATURE
 ) -> dict:
     prompt = build_judge_prompt(transcript, domain, rubric)
 
@@ -50,11 +61,12 @@ def judge_transcript(
         response = ollama.chat(
             model=model,
             messages=[{"role": "user", "content": prompt}],
-            options={"temperature": 0.1, "num_predict": 200}
+            options={"temperature": temperature, "num_predict": 200}
         )
         text = response["message"]["content"].strip()
 
         result = {
+            "model": model,
             "label": None,
             "confidence": None,
             "matched_high": [],
@@ -88,7 +100,8 @@ def judge_transcript(
                 result["reason"] = line.replace("REASON:", "").strip()
 
         if result["label"] is None:
-            if "HIGH" in text.upper()[:50]:
+            text_upper = text.upper()
+            if "HIGH" in text_upper[:100]:
                 result["label"] = "HIGH"
             else:
                 result["label"] = "LOW"
@@ -97,6 +110,7 @@ def judge_transcript(
 
     except Exception as e:
         return {
+            "model": model,
             "label": "LOW",
             "confidence": "LOW",
             "matched_high": [],
@@ -109,26 +123,43 @@ def judge_transcript(
 def run_three_judges(
     transcript: str,
     domain: str,
-    rubric: dict,
-    model: str = "llama3.1:latest"
+    rubric: dict
 ) -> dict:
-    """Run same transcript through judge 3 times, take majority."""
+    """
+    Run transcript through 3 different models at same temperature.
+    Variation comes from model architecture, not randomness.
+    Models: Llama 3.1 (Meta), Mistral (Mistral AI), Gemma 2 (Google)
+    """
     results = []
-    for run in range(3):
-        result = judge_transcript(transcript, domain, rubric, model)
+
+    for model in JUDGE_MODELS:
+        result = judge_transcript(
+            transcript=transcript,
+            domain=domain,
+            rubric=rubric,
+            model=model,
+            temperature=JUDGE_TEMPERATURE
+        )
         results.append(result)
 
-    labels = [r["label"] for r in results if r["label"] in ["HIGH", "LOW"]]
+    labels = [
+        r["label"] for r in results
+        if r["label"] in ["HIGH", "LOW"]
+    ]
     high_count = labels.count("HIGH")
     low_count = labels.count("LOW")
-
     majority_label = "HIGH" if high_count >= 2 else "LOW"
-    agreement = max(high_count, low_count) / len(labels) if labels else 0
+    agreement = (
+        max(high_count, low_count) / len(labels) if labels else 0
+    )
+    all_agree = len(set(labels)) == 1 if labels else False
 
     return {
         "majority_label": majority_label,
         "agreement": agreement,
-        "all_agree": agreement == 1.0,
+        "all_agree": all_agree,
         "individual_results": results,
-        "votes": {"HIGH": high_count, "LOW": low_count}
+        "votes": {"HIGH": high_count, "LOW": low_count},
+        "models_used": JUDGE_MODELS,
+        "temperature_used": JUDGE_TEMPERATURE
     }
