@@ -81,9 +81,7 @@ def judge_transcript(
                 val = line.replace("LABEL:", "").strip().upper()
                 result["label"] = val if val in ["HIGH", "LOW"] else None
             elif line.startswith("CONFIDENCE:"):
-                result["confidence"] = line.replace(
-                    "CONFIDENCE:", ""
-                ).strip()
+                result["confidence"] = line.replace("CONFIDENCE:", "").strip()
             elif line.startswith("MATCHED_HIGH:"):
                 nums = line.replace("MATCHED_HIGH:", "").strip()
                 result["matched_high"] = [
@@ -101,10 +99,7 @@ def judge_transcript(
 
         if result["label"] is None:
             text_upper = text.upper()
-            if "HIGH" in text_upper[:100]:
-                result["label"] = "HIGH"
-            else:
-                result["label"] = "LOW"
+            result["label"] = "HIGH" if "HIGH" in text_upper[:100] else "LOW"
 
         return result
 
@@ -120,46 +115,60 @@ def judge_transcript(
         }
 
 
-def run_three_judges(
-    transcript: str,
+def run_all_transcripts_one_model(
+    transcripts: list,
     domain: str,
-    rubric: dict
-) -> dict:
+    rubric: dict,
+    model: str
+) -> list:
     """
-    Run transcript through 3 different models at same temperature.
-    Variation comes from model architecture, not randomness.
-    Models: Llama 3.1 (Meta), Mistral (Mistral AI), Gemma 2 (Google)
+    Evaluate all transcripts with a single model in one batch.
+    Keeps the model hot in GPU memory for all calls before switching.
+    Returns list of results in the same order as transcripts.
     """
     results = []
-
-    for model in JUDGE_MODELS:
+    for t in transcripts:
         result = judge_transcript(
-            transcript=transcript,
+            transcript=t["transcript"],
             domain=domain,
             rubric=rubric,
-            model=model,
-            temperature=JUDGE_TEMPERATURE
+            model=model
         )
+        result["transcript_index"] = t["index"]
         results.append(result)
+    return results
 
-    labels = [
-        r["label"] for r in results
-        if r["label"] in ["HIGH", "LOW"]
-    ]
-    high_count = labels.count("HIGH")
-    low_count = labels.count("LOW")
-    majority_label = "HIGH" if high_count >= 2 else "LOW"
-    agreement = (
-        max(high_count, low_count) / len(labels) if labels else 0
-    )
-    all_agree = len(set(labels)) == 1 if labels else False
 
-    return {
-        "majority_label": majority_label,
-        "agreement": agreement,
-        "all_agree": all_agree,
-        "individual_results": results,
-        "votes": {"HIGH": high_count, "LOW": low_count},
-        "models_used": JUDGE_MODELS,
-        "temperature_used": JUDGE_TEMPERATURE
-    }
+def merge_model_results(
+    transcripts: list,
+    results_by_model: dict
+) -> list:
+    """
+    Merge per-model result lists into per-transcript ensemble results.
+    results_by_model: {model_name: [result, ...]} — same order as transcripts
+    """
+    merged = []
+    models = list(results_by_model.keys())
+
+    for i, t in enumerate(transcripts):
+        individual = [results_by_model[m][i] for m in models]
+        labels = [r["label"] for r in individual if r["label"] in ["HIGH", "LOW"]]
+        high_count = labels.count("HIGH")
+        low_count = labels.count("LOW")
+        majority_label = "HIGH" if high_count >= 2 else "LOW"
+        agreement = max(high_count, low_count) / len(labels) if labels else 0
+        all_agree = len(set(labels)) == 1 if labels else False
+
+        merged.append({
+            "majority_label": majority_label,
+            "agreement": agreement,
+            "all_agree": all_agree,
+            "individual_results": individual,
+            "votes": {"HIGH": high_count, "LOW": low_count},
+            "models_used": models,
+            "temperature_used": JUDGE_TEMPERATURE,
+            "transcript_index": t["index"],
+            "transcript": t["transcript"]
+        })
+
+    return merged

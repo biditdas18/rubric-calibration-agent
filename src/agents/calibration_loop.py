@@ -7,11 +7,16 @@ from datetime import datetime
 from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from judge_agent import run_three_judges, JUDGE_MODELS, JUDGE_TEMPERATURE
+from judge_agent import (
+    run_all_transcripts_one_model,
+    merge_model_results,
+    JUDGE_MODELS,
+    JUDGE_TEMPERATURE
+)
 from coordinator_agent import run_coordinator
 
 # ── CONFIG ────────────────────────────────────────────────
-MAX_TIME_SECONDS = 30 * 60
+MAX_TIME_SECONDS = 60 * 60   # 1 hour — enough for 3-model batched sweep
 MAX_ITERATIONS   = 10
 TARGET_AGREEMENT = 0.85
 MIN_DELTA        = 0.02
@@ -36,44 +41,44 @@ def load_transcripts(path: str) -> dict:
     return domain_transcripts
 
 
-def evaluate_domain(
+def evaluate_domain_batched(
     transcripts: list,
     domain: str,
     rubric: dict,
     irreducible_indices: set
 ) -> dict:
-    results      = []
-    disagreements = []
-    agreements   = 0
+    """
+    Batch evaluation: all transcripts through model 1, then model 2, then
+    model 3 — each model stays loaded in GPU memory for its full pass.
+    3 model loads total instead of len(transcripts)*3.
+    """
+    active = [t for t in transcripts if t["index"] not in irreducible_indices]
 
-    for t in transcripts:
-        if t["index"] in irreducible_indices:
-            continue
-
-        result = run_three_judges(
-            transcript=t["transcript"],
+    results_by_model = {}
+    for model in JUDGE_MODELS:
+        short = model.split(":")[0]
+        print(f"    [{short}] evaluating {len(active)} transcripts...", flush=True)
+        results_by_model[model] = run_all_transcripts_one_model(
+            transcripts=active,
             domain=domain,
-            rubric=rubric
+            rubric=rubric,
+            model=model
         )
-        result["transcript_index"] = t["index"]
-        result["transcript"]       = t["transcript"]
-        results.append(result)
 
-        if result["all_agree"]:
-            agreements += 1
-        else:
-            disagreements.append({**t, **result})
+    merged = merge_model_results(active, results_by_model)
 
-    total          = len(results)
+    agreements    = sum(1 for r in merged if r["all_agree"])
+    disagreements = [r for r in merged if not r["all_agree"]]
+    total         = len(merged)
     agreement_rate = agreements / total if total > 0 else 0
 
     return {
-        "agreement_rate":      agreement_rate,
-        "total_evaluated":     total,
-        "agreements":          agreements,
-        "disagreements":       len(disagreements),
+        "agreement_rate":       agreement_rate,
+        "total_evaluated":      total,
+        "agreements":           agreements,
+        "disagreements":        len(disagreements),
         "disagreement_details": disagreements,
-        "all_results":         results
+        "all_results":          merged
     }
 
 
@@ -100,16 +105,17 @@ def run_calibration():
     }
 
     print(f"\n{'='*60}")
-    print("SNR RUBRIC CALIBRATION — 3 DIFFERENT MODELS")
+    print("SNR RUBRIC CALIBRATION — 3 MODELS, BATCHED BY MODEL")
     print(f"{'='*60}")
+    print(f"Evaluation order: all transcripts per model before switching")
     print(f"Judge models (temperature={JUDGE_TEMPERATURE}):")
     for m in JUDGE_MODELS:
         print(f"  • {m}")
     print(f"Coordinator: claude-sonnet-4-20250514")
     print(f"Target: {TARGET_AGREEMENT:.0%} | "
-          f"Max iter: {MAX_ITERATIONS} | Max time: 30 min")
-    print(f"Transcripts per domain: "
-          f"{[len(transcripts_by_domain[d]) for d in domains]}")
+          f"Max iter: {MAX_ITERATIONS} | Max time: 60 min")
+    print(f"Transcripts: {sum(len(v) for v in transcripts_by_domain.values())} "
+          f"across {len(domains)} domains")
     print(f"{'='*60}\n")
 
     iteration = 0
@@ -120,12 +126,11 @@ def run_calibration():
         elapsed_min = elapsed / 60
 
         print(f"\n{'─'*60}")
-        print(f"ITERATION {iteration} | "
-              f"Time: {elapsed_min:.1f} min")
+        print(f"ITERATION {iteration} | Time: {elapsed_min:.1f} min")
         print(f"{'─'*60}")
 
         if elapsed > MAX_TIME_SECONDS:
-            print("STOPPING: Time limit (30 min)")
+            print("STOPPING: Time limit (60 min)")
             break
         if all(s["converged"] for s in domain_state.values()):
             print("STOPPING: All domains converged")
@@ -148,10 +153,10 @@ def run_calibration():
 
             any_active = True
             n = len(transcripts_by_domain[domain])
-            print(f"\n[{domain}] Evaluating {n} transcripts "
-                  f"× 3 models = {n*3} calls...")
+            print(f"\n[{domain}] {n} transcripts × 3 models = {n*3} calls "
+                  f"(3 model loads)", flush=True)
 
-            eval_result = evaluate_domain(
+            eval_result = evaluate_domain_batched(
                 transcripts_by_domain[domain],
                 domain,
                 state["rubric"],
@@ -166,38 +171,33 @@ def run_calibration():
                      if len(state["agreement_history"]) > 1 else 0)
             delta = agreement - prev
 
-            print(f"  Agreement:    {agreement:.1%} "
-                  f"(Δ {delta:+.1%})")
-            print(f"  All agree:    {eval_result['agreements']} / "
+            print(f"  Agreement: {agreement:.1%} (Δ {delta:+.1%})")
+            print(f"  All agree: {eval_result['agreements']} / "
                   f"{eval_result['total_evaluated']}")
-            print(f"  Disagreed:    {eval_result['disagreements']}")
+            print(f"  Disagreed: {eval_result['disagreements']}")
 
-            # Print per-model vote breakdown for transparency
             if eval_result["disagreement_details"]:
                 sample = eval_result["disagreement_details"][0]
                 votes  = {
                     r["model"].split(":")[0]: r["label"]
                     for r in sample["individual_results"]
                 }
-                print(f"  Sample disagreement votes: {votes}")
+                print(f"  Sample disagreement: {votes}")
 
-            # Converged?
             if agreement >= TARGET_AGREEMENT:
-                state["converged"]    = True
+                state["converged"]     = True
                 state["final_results"] = eval_result
                 print(f"  ✓ CONVERGED at {agreement:.1%}!")
                 continue
 
-            # Stagnation check
             hist = state["agreement_history"]
             if (len(hist) >= 3 and
                     all(abs(hist[-i-1] - hist[-i-2]) < MIN_DELTA
                         for i in range(2))):
-                print(f"  ⚠ Stagnated — model capability ceiling reached")
+                print(f"  ⚠ Stagnated — model capability ceiling")
                 state["final_results"] = eval_result
                 continue
 
-            # Run coordinator
             if eval_result["disagreements"] > 0:
                 print(f"  Running coordinator (Claude Sonnet)...")
                 coord = run_coordinator(
@@ -208,18 +208,13 @@ def run_calibration():
                     agreement_history=state["agreement_history"],
                     judge_models=JUDGE_MODELS
                 )
-
                 if coord["success"]:
                     state["rubric"] = coord["updated_rubric"]
-                    new_irr = set(
-                        coord.get("irreducible_transcripts", [])
-                    )
+                    new_irr = set(coord.get("irreducible_transcripts", []))
                     state["irreducible"].update(new_irr)
-                    v = state["rubric"]["version"]
-                    print(f"  Rubric → v{v}")
+                    print(f"  Rubric → v{state['rubric']['version']}")
                     if coord["reasoning"]:
-                        print(f"  Coordinator: "
-                              f"{coord['reasoning'][:120]}...")
+                        print(f"  Coordinator: {coord['reasoning'][:120]}...")
                     if new_irr:
                         print(f"  Irreducible flagged: {new_irr}")
                 else:
@@ -236,14 +231,12 @@ def run_calibration():
     print("SAVING OUTPUTS")
     print(f"{'='*60}")
 
-    # Final rubrics
     final_rubrics = {d: s["rubric"] for d, s in domain_state.items()}
     rubric_out = os.path.join(REPORT_DIR, "calibrated_rubrics.json")
     with open(rubric_out, "w") as f:
         json.dump(final_rubrics, f, indent=2)
     print(f"✓ {rubric_out}")
 
-    # Calibrated labels
     label_rows = []
     for domain, state in domain_state.items():
         if state["final_results"]:
@@ -269,7 +262,6 @@ def run_calibration():
             writer.writerows(label_rows)
     print(f"✓ {labels_out}")
 
-    # Summary
     summary = {
         "run_timestamp":      datetime.now().isoformat(),
         "total_time_minutes": round((time.time() - start_time) / 60, 2),
@@ -278,6 +270,7 @@ def run_calibration():
         "judge_models":       JUDGE_MODELS,
         "judge_temperature":  JUDGE_TEMPERATURE,
         "coordinator_model":  "claude-sonnet-4-20250514",
+        "evaluation_strategy": "batched_by_model",
         "domains": {}
     }
 
@@ -289,12 +282,12 @@ def run_calibration():
         hist     = state["agreement_history"]
         final_ag = hist[-1] if hist else 0
         summary["domains"][domain] = {
-            "final_agreement":    round(final_ag, 3),
-            "agreement_history":  [round(a, 3) for a in hist],
-            "converged":          state["converged"],
-            "iterations_run":     state["iteration"],
+            "final_agreement":      round(final_ag, 3),
+            "agreement_history":    [round(a, 3) for a in hist],
+            "converged":            state["converged"],
+            "iterations_run":       state["iteration"],
             "final_rubric_version": state["rubric"].get("version", 0),
-            "irreducible_count":  len(state["irreducible"])
+            "irreducible_count":    len(state["irreducible"])
         }
         hist_str = " → ".join(f"{a:.0%}" for a in hist)
         status   = "✓ CONVERGED" if state["converged"] else "○ Not converged"
