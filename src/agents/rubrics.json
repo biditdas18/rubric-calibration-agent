@@ -1,0 +1,57 @@
+{
+  "career_selfimprovement": {
+    "version": 0,
+    "domain_context": "Career advice, job market, productivity, self-improvement, immigration career advice",
+    "HIGH": [
+      "Contains at least 2 specific procedural steps with named methods, tools, or timelines (e.g. 'File Form I-539 within 60 days', 'Use the STAR method for interviews')",
+      "Provides concrete outcomes or metrics — numbers, percentages, named frameworks, specific results",
+      "If addressing a problem or risk, provides a specific action plan or named solution, not just awareness",
+      "Ideas build sequentially — each point adds new information rather than restating the previous one"
+    ],
+    "LOW": [
+      "Uses motivational language without procedural specificity — 'believe in yourself', 'work harder', 'stay consistent' with no method attached",
+      "Repeats the same warning, risk, or point more than twice without adding new information",
+      "Primary hook is fear or urgency — job loss, visa denial, market collapse — with no concrete mitigation steps offered",
+      "More than 30% of content promotes a course, consultation service, community, or product",
+      "Claims are authoritative but cite no evidence, data, or named source"
+    ],
+    "conflict_rule": "If HIGH-signal content coexists with dominant LOW patterns (>30% of transcript), assign LOW"
+  },
+  "tech_ai": {
+    "version": 0,
+    "domain_context": "Software engineering, AI/ML, cloud computing, system design, coding tutorials",
+    "HIGH": [
+      "Names specific technologies, algorithms, libraries, or architectural patterns with accurate technical detail (e.g. 'use Redis for session caching', 'transformer attention is O(n^2) in sequence length')",
+      "Explains mechanism or tradeoff — not just what but why, with technical reasoning",
+      "Code concepts, benchmarks, or system design decisions are concrete and implementable",
+      "Covers a technical problem with a specific solution path, not just awareness of the problem"
+    ],
+    "LOW": [
+      "Uses hype language without technical substance — 'AI will change everything', 'this is revolutionary', 'you must learn this now' with no technical explanation",
+      "Claims about AI capabilities or job market are sweeping and unsubstantiated by data or named research",
+      "Primary message is fear — job loss from AI, being left behind — with no actionable technical skill offered",
+      "Recommends learning a technology without explaining what it does or why it matters technically",
+      "More than 30% of content promotes a course, bootcamp, newsletter, or paid resource"
+    ],
+    "conflict_rule": "If technical content is accurate but framing is primarily fear-based or promotional, assign LOW"
+  },
+  "general_education": {
+    "version": 0,
+    "domain_context": "Science, history, economics, mathematics, philosophy, geopolitics — explanatory content",
+    "HIGH": [
+      "Explains a mechanism, phenomenon, or concept from first principles with logical steps",
+      "Uses a specific analogy, thought experiment, or concrete example that illuminates the concept accurately",
+      "Arrives at a non-obvious insight or counterintuitive conclusion supported by the explanation",
+      "Accurately represents complexity — does not oversimplify to the point of inaccuracy",
+      "If covering a problem or risk, provides historical context, causal analysis, or named expert perspectives"
+    ],
+    "LOW": [
+      "Uses alarming or conspiratorial framing as the primary hook without evidence — 'what they don't want you to know', 'the system is broken'",
+      "Makes confident causal claims without evidence, named sources, or logical reasoning",
+      "Presents complex multi-causal phenomena as simple good-vs-evil narratives",
+      "Emotional manipulation — outrage, fear, tribalism — dominates over explanation",
+      "NOTE: Absence of actionable steps does NOT indicate LOW signal for general education"
+    ],
+    "conflict_rule": "For general education, absence of actionable steps does NOT indicate LOW signal. Judge on conceptual accuracy and explanatory depth only"
+  }
+}
