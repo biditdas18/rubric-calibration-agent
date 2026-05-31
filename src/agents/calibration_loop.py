@@ -3,6 +3,7 @@ import time
 import csv
 import os
 import sys
+import signal
 from datetime import datetime
 from collections import defaultdict
 
@@ -44,91 +45,32 @@ def load_transcripts(path: str) -> dict:
     return domain_transcripts
 
 
-def evaluate_domain(
-    transcripts: list,
-    domain: str,
-    rubric: dict,
-    irreducible_indices: set
-) -> dict:
-    """
-    Evaluate all transcripts in a domain with 3 judges.
-
-    Agreement metric: WEIGHTED AGREEMENT
-    - All 3 agree:     1.000 per transcript
-    - 2 of 3 agree:    0.667 per transcript
-    - 0 of 3 agree:    0.000 per transcript (impossible with binary)
-    Average across transcripts = weighted agreement rate.
-
-    This is mathematically correct — majority agree (2/3) is
-    always 100% with binary labels and 3 judges, which is
-    meaningless. Weighted agreement captures genuine signal.
-    """
-    results      = []
-    disagreements = []
-    weighted_sum  = 0.0
-    all_agree_count = 0
-
-    for t in transcripts:
-        if t["index"] in irreducible_indices:
-            continue
-
-        result = run_three_judges(
-            transcript=t["transcript"],
-            domain=domain,
-            rubric=rubric
-        )
-        result["transcript_index"] = t["index"]
-        result["transcript"]       = t["transcript"]
-        results.append(result)
-
-        high = result["votes"]["HIGH"]
-        low  = result["votes"]["LOW"]
-
-        if high == 3 or low == 3:
-            weighted_sum    += 1.0
-            all_agree_count += 1
-        elif high == 2 or low == 2:
-            weighted_sum += 0.667
-            disagreements.append({**t, **result})
-        else:
-            weighted_sum += 0.0
-            disagreements.append({**t, **result})
-
-    total          = len(results)
-    weighted_rate  = weighted_sum / total if total > 0 else 0
-    all_agree_rate = all_agree_count / total if total > 0 else 0
-
-    return {
-        "agreement_rate":       weighted_rate,    # PRIMARY — weighted
-        "all_agree_rate":       all_agree_rate,   # SECONDARY — strict
-        "total_evaluated":      total,
-        "all_agreements":       all_agree_count,
-        "partial_agreements":   len([r for r in results
-                                     if (r["votes"]["HIGH"] == 2 or
-                                         r["votes"]["LOW"] == 2)]),
-        "disagreements":        len(disagreements),
-        "disagreement_details": disagreements,
-        "all_results":          results
-    }
-
 
 def run_iteration(
     transcripts_by_domain: dict,
     domains: list,
-    domain_state: dict
+    domain_state: dict,
+    regression_domains: set = None
 ) -> dict:
     """
     One full iteration:
       Model 1 → all domains → Model 2 → all domains → Model 3 → all domains
     3 model loads total regardless of domain count.
+
+    regression_domains: converged domains to include for regression checking.
+    They share the same batched sweep — zero extra model loads.
     Returns per-domain eval results.
     """
+    if regression_domains is None:
+        regression_domains = set()
+
     active_by_domain = {
         d: [t for t in transcripts_by_domain[d]
             if t["index"] not in domain_state[d]["irreducible"]]
         for d in domains
-        if not domain_state[d]["converged"]
-        and domain_state[d]["iteration"] < MAX_ITERATIONS
+        if (not domain_state[d]["converged"]
+            and domain_state[d]["iteration"] < MAX_ITERATIONS)
+        or d in regression_domains
     }
 
     if not active_by_domain:
@@ -188,33 +130,22 @@ def run_iteration(
     return eval_results
 
 
-# Import run_three_judges for evaluate_domain (used in regression check)
-from judge_agent import run_all_transcripts_one_model, merge_model_results
-
-
-def run_three_judges(transcript, domain, rubric):
-    """Wrapper used by evaluate_domain for regression checks."""
-    results_by_model = {}
-    for model in JUDGE_MODELS:
-        res = run_all_transcripts_one_model(
-            transcripts=[{"index": 0, "transcript": transcript,
-                          "domain": domain}],
-            domain=domain,
-            rubric=rubric,
-            model=model
-        )
-        results_by_model[model] = res
-
-    merged = merge_model_results(
-        [{"index": 0, "transcript": transcript}],
-        results_by_model
-    )
-    return merged[0]
-
 
 def run_calibration():
     os.makedirs(REPORT_DIR, exist_ok=True)
     start_time = time.time()
+
+    # ── GRACEFUL SHUTDOWN ─────────────────────────────────
+    # SIGTERM or Ctrl+C saves best results before exiting
+    _interrupted = {"flag": False}
+
+    def _handle_signal(sig, frame):
+        print(f"\n\nSignal received — saving best results before exit...")
+        _interrupted["flag"] = True
+
+    signal.signal(signal.SIGTERM, _handle_signal)
+    signal.signal(signal.SIGINT,  _handle_signal)
+    # ─────────────────────────────────────────────────────
 
     with open(RUBRIC_PATH, "r") as f:
         rubrics = json.load(f)
@@ -227,10 +158,14 @@ def run_calibration():
             "agreement_history":   [],
             "all_agree_history":   [],
             "rubric":              rubrics[d],
+            "best_rubric":         rubrics[d],   # rubric with highest agreement so far
+            "best_agreement":      0.0,           # highest agreement seen
             "iteration":           0,
-            "converged":           False,
-            "irreducible":         set(),
+            "converged":            False,
+            "converged_this_iter":  False,
+            "irreducible":          set(),
             "final_results":       None,
+            "best_results":        None,
             "rubric_change_log":   [],
             "regression_detected": False
         }
@@ -267,6 +202,9 @@ def run_calibration():
         print(f"ITERATION {iteration} | Time: {elapsed_min:.1f} min")
         print(f"{'─'*60}")
 
+        if _interrupted["flag"]:
+            print("STOPPING: Interrupted — saving best results")
+            break
         if elapsed > MAX_TIME_SECONDS:
             print("STOPPING: Time limit (3 hours)")
             break
@@ -277,8 +215,19 @@ def run_calibration():
             print("STOPPING: Max iterations")
             break
 
+        # Regression check: only on the iteration immediately after convergence
+        # (converged_this_iter). Never re-check on subsequent iterations.
+        regression_domains = {
+            d for d in domains
+            if domain_state[d].get("converged_this_iter", False)
+        }
+        # Clear the flag so it only fires once
+        for d in domains:
+            domain_state[d]["converged_this_iter"] = False
+
         eval_results = run_iteration(
-            transcripts_by_domain, domains, domain_state
+            transcripts_by_domain, domains, domain_state,
+            regression_domains=regression_domains
         )
 
         if not eval_results:
@@ -299,6 +248,11 @@ def run_calibration():
                 eval_result.get("all_agree_rate", 0)
             )
             state["iteration"] += 1
+
+            if agreement > state["best_agreement"]:
+                state["best_agreement"] = agreement
+                state["best_rubric"]    = state["rubric"].copy()
+                state["best_results"]   = eval_result
 
             prev  = (state["agreement_history"][-2]
                      if len(state["agreement_history"]) > 1 else 0)
@@ -325,8 +279,9 @@ def run_calibration():
                 print(f"  Sample disagreement: {votes}")
 
             if agreement >= TARGET_AGREEMENT:
-                state["converged"]     = True
-                state["final_results"] = eval_result
+                state["converged"]          = True
+                state["converged_this_iter"] = True  # trigger one regression check
+                state["final_results"]       = eval_result
                 print(f"  ✓ CONVERGED at {agreement:.1%}!")
                 continue
 
@@ -369,34 +324,25 @@ def run_calibration():
 
             state["final_results"] = eval_result
 
-        # ── REGRESSION CHECK ──────────────────────────────
-        for domain in domains:
-            state = domain_state[domain]
-            if not state["converged"]:
+        # ── REGRESSION CHECK (free — reuses batched results) ──
+        for domain in regression_domains:
+            if domain not in eval_results:
                 continue
-            other_rubric_changed = any(
-                len(domain_state[d]["rubric_change_log"]) > state["iteration"]
-                for d in domains if d != domain
-            )
-            if not other_rubric_changed:
-                continue
-
-            print(f"\n[{domain}] Regression check (was converged)...")
-            reg_result = evaluate_domain(
-                transcripts_by_domain[domain],
-                domain,
-                state["rubric"],
-                state["irreducible"]
-            )
-            reg_rate  = reg_result["agreement_rate"]
+            state     = domain_state[domain]
+            reg_rate  = eval_results[domain]["agreement_rate"]
             prev_rate = (state["agreement_history"][-1]
                          if state["agreement_history"] else 0)
 
+            print(f"\n[{domain}] Regression check (was converged)...")
             if reg_rate < prev_rate - 0.10:
                 print(f"  ⚠ REGRESSION: {prev_rate:.1%} → {reg_rate:.1%}")
                 print(f"  Domain un-converged — coordinator will revisit")
                 state["converged"] = False
                 state["agreement_history"].append(reg_rate)
+                state["all_agree_history"].append(
+                    eval_results[domain].get("all_agree_rate", 0)
+                )
+                state["final_results"]       = eval_results[domain]
                 state["regression_detected"] = True
             else:
                 print(f"  ✓ Stable: {reg_rate:.1%} (no regression)")
@@ -406,7 +352,8 @@ def run_calibration():
     print("SAVING OUTPUTS")
     print(f"{'='*60}")
 
-    final_rubrics = {d: s["rubric"] for d, s in domain_state.items()}
+    # Save best rubric per domain (highest agreement, not necessarily last)
+    final_rubrics = {d: s["best_rubric"] for d, s in domain_state.items()}
     rubric_out = os.path.join(REPORT_DIR, "calibrated_rubrics.json")
     with open(rubric_out, "w") as f:
         json.dump(final_rubrics, f, indent=2)
@@ -414,6 +361,9 @@ def run_calibration():
 
     label_rows = []
     for domain, state in domain_state.items():
+        # Use best_results (highest agreement) not necessarily final iteration
+        if state["best_results"] or state["final_results"]:
+            state["final_results"] = state["best_results"] or state["final_results"]
         if state["final_results"]:
             for r in state["final_results"]["all_results"]:
                 label_rows.append({
@@ -465,6 +415,7 @@ def run_calibration():
         final_ag = hist[-1] if hist else 0
         summary["domains"][domain] = {
             "final_weighted_agreement": round(final_ag, 3),
+            "best_weighted_agreement":  round(state["best_agreement"], 3),
             "final_all_agree":          round(all_hist[-1] if all_hist else 0, 3),
             "weighted_history":         [round(a, 3) for a in hist],
             "all_agree_history":        [round(a, 3) for a in all_hist],
