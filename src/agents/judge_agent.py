@@ -5,10 +5,10 @@ import ollama
 JUDGE_MODELS = [
     "llama3.1:latest",   # Meta — 8B
     "mistral:latest",    # Mistral AI — 7B
-    "gemma2:latest",     # Google — 9B
+    "qwen2.5:7b",        # Alibaba — 7B (replaces Gemma which was systematically biased)
 ]
 
-JUDGE_TEMPERATURE = 0.1  # Same for all three — controlled evaluation
+JUDGE_TEMPERATURE = 0.0  # Deterministic — agreement changes are rubric-driven only
 
 
 def build_judge_prompt(transcript: str, domain: str, rubric: dict) -> str:
