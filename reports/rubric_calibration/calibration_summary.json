@@ -1,0 +1,121 @@
+{
+  "run_timestamp": "2026-05-31T02:00:57.790649",
+  "total_time_minutes": 170.68,
+  "total_iterations": 11,
+  "target_agreement": 0.8,
+  "agreement_metric": "weighted (1.0=all agree, 0.667=2/3 agree)",
+  "judge_models": [
+    "llama3.1:latest",
+    "mistral:latest",
+    "qwen2.5:7b"
+  ],
+  "judge_temperature": 0.0,
+  "coordinator_model": "claude-sonnet-4-6",
+  "domains": {
+    "career_selfimprovement": {
+      "final_weighted_agreement": 0.684,
+      "best_weighted_agreement": 0.7,
+      "final_all_agree": 0.05,
+      "weighted_history": [
+        0.684,
+        0.7,
+        0.684,
+        0.684,
+        0.684,
+        0.684,
+        0.684,
+        0.684,
+        0.684,
+        0.684
+      ],
+      "all_agree_history": [
+        0.05,
+        0.1,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "converged": false,
+      "regression_detected": false,
+      "iterations_run": 10,
+      "final_rubric_version": 2,
+      "irreducible_count": 0,
+      "rubric_changes_made": 2
+    },
+    "tech_ai": {
+      "final_weighted_agreement": 0.817,
+      "best_weighted_agreement": 0.817,
+      "final_all_agree": 0.45,
+      "weighted_history": [
+        0.767,
+        0.817,
+        0.817,
+        0.817,
+        0.817,
+        0.817,
+        0.817,
+        0.817,
+        0.817,
+        0.817
+      ],
+      "all_agree_history": [
+        0.3,
+        0.45,
+        0.45,
+        0.45,
+        0.45,
+        0.45,
+        0.45,
+        0.45,
+        0.45,
+        0.45
+      ],
+      "converged": true,
+      "regression_detected": false,
+      "iterations_run": 10,
+      "final_rubric_version": 1,
+      "irreducible_count": 2,
+      "rubric_changes_made": 1
+    },
+    "general_education": {
+      "final_weighted_agreement": 0.967,
+      "best_weighted_agreement": 0.967,
+      "final_all_agree": 0.9,
+      "weighted_history": [
+        0.967,
+        0.967,
+        0.967,
+        0.967,
+        0.967,
+        0.967,
+        0.967,
+        0.967,
+        0.967,
+        0.967
+      ],
+      "all_agree_history": [
+        0.9,
+        0.9,
+        0.9,
+        0.9,
+        0.9,
+        0.9,
+        0.9,
+        0.9,
+        0.9,
+        0.9
+      ],
+      "converged": true,
+      "regression_detected": false,
+      "iterations_run": 10,
+      "final_rubric_version": 0,
+      "irreducible_count": 0,
+      "rubric_changes_made": 0
+    }
+  }
+}

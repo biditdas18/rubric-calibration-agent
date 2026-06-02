@@ -2,8 +2,6 @@ __pycache__/
 *.pyc
 *.pyo
 .env
+*.env
+.env.*
 .DS_Store
-reports/rubric_calibration/*
-!reports/rubric_calibration/.gitkeep
-data/*.csv
-!data/.gitkeep

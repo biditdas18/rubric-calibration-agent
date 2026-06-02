@@ -1,0 +1,57 @@
+{
+  "career_selfimprovement": {
+    "version": 1,
+    "domain_context": "Career advice, job market, productivity, self-improvement, immigration career advice",
+    "HIGH": [
+      "Contains at least 2 specific procedural steps with named methods, tools, timelines, or defined techniques \u2014 conceptual definitions alone do not qualify but named practices or described processes do",
+      "Provides concrete outcomes or metrics \u2014 numbers, percentages, named frameworks, specific results",
+      "If addressing a problem or risk, provides a specific action plan or named solution, not just awareness",
+      "Ideas build sequentially \u2014 each point adds new information rather than restating the previous one"
+    ],
+    "LOW": [
+      "Motivational language dominates the transcript with no actionable method attached \u2014 phrases like believe in yourself or stay consistent appear repeatedly and procedural steps are absent or trivial",
+      "Repeats the same warning, risk, or point more than twice without adding new information",
+      "Primary hook is fear or urgency \u2014 job loss, visa denial, market collapse \u2014 with no concrete mitigation steps offered",
+      "More than 30% of content promotes a course, consultation service, community, or product",
+      "Claims are authoritative but cite no evidence, data, named source, or personal experiment \u2014 named books, frameworks, cited statistics, or described personal tests do not trigger this criterion"
+    ],
+    "conflict_rule": "If HIGH-signal content coexists with dominant LOW patterns (more than 30% of transcript), assign LOW. Isolated motivational framing around otherwise procedural content does not constitute a dominant LOW pattern."
+  },
+  "tech_ai": {
+    "version": 1,
+    "domain_context": "Software engineering, AI/ML, cloud computing, system design, coding tutorials",
+    "HIGH": [
+      "Names specific technologies, algorithms, data structures, or architectural patterns with accurate technical detail (e.g. stack-based O(n) solution, Project Mainline module updates, M5 neural engine)",
+      "Explains mechanism or tradeoff \u2014 not just what but why, with technical reasoning",
+      "Code concepts, benchmarks, or system design decisions are concrete and implementable",
+      "Covers a technical problem with a specific solution path, not just awareness of the problem"
+    ],
+    "LOW": [
+      "Uses hype language without technical substance \u2014 AI will change everything, this is revolutionary, you must learn this now with no technical explanation",
+      "Claims about AI capabilities or job market are sweeping and unsubstantiated by data or named research",
+      "Primary message is fear \u2014 job loss from AI, being left behind \u2014 with no actionable technical skill offered",
+      "Recommends learning a technology or skill without any explanation of what it does, how it works, or why it matters technically",
+      "More than 30% of content promotes a course, bootcamp, newsletter, or paid resource; a brief sponsor mention alone does not qualify"
+    ],
+    "conflict_rule": "If technical content is accurate but framing is primarily fear-based or promotional, assign LOW"
+  },
+  "general_education": {
+    "version": 0,
+    "domain_context": "Science, history, economics, mathematics, philosophy, geopolitics \u2014 explanatory content",
+    "HIGH": [
+      "Explains a mechanism, phenomenon, or concept from first principles with logical steps",
+      "Uses a specific analogy, thought experiment, or concrete example that illuminates the concept accurately",
+      "Arrives at a non-obvious insight or counterintuitive conclusion supported by the explanation",
+      "Accurately represents complexity \u2014 does not oversimplify to the point of inaccuracy",
+      "If covering a problem or risk, provides historical context, causal analysis, or named expert perspectives"
+    ],
+    "LOW": [
+      "Uses alarming or conspiratorial framing as the primary hook without evidence \u2014 'what they don't want you to know', 'the system is broken'",
+      "Makes confident causal claims without evidence, named sources, or logical reasoning",
+      "Presents complex multi-causal phenomena as simple good-vs-evil narratives",
+      "Emotional manipulation \u2014 outrage, fear, tribalism \u2014 dominates over explanation",
+      "NOTE: Absence of actionable steps does NOT indicate LOW signal for general education"
+    ],
+    "conflict_rule": "For general education, absence of actionable steps does NOT indicate LOW signal. Judge on conceptual accuracy and explanatory depth only"
+  }
+}
