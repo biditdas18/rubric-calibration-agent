@@ -183,9 +183,9 @@ runs a fully automated iterative rubric refinement loop driven solely by
 inter-judge agreement signal with no human in the loop.
 
 \item \textbf{The model capability ceiling finding.} The system empirically
-distinguishes rubric-fixable disagreement (Technology \& AI: 77\%
-$\rightarrow$ 82\% in one iteration) from model-capability-bounded disagreement
-(Career \& Self-Improvement: stagnated at 70.0\% across nine iterations). This
+distinguishes rubric-fixable disagreement (Technology \& AI: 76.7\%
+$\rightarrow$ 81.7\% in one iteration) from model-capability-bounded disagreement
+(Career \& Self-Improvement: stagnated at 70.0\% despite two revisions). This
 distinction is not a failure; it is a diagnostic.
 
 \item \textbf{Degenerate judge detection.} Gemma~2 9B produced LOW labels for all
@@ -674,7 +674,7 @@ of disagreement exists that rubric revision cannot fix: disagreement caused by
 a model's inability to track co-occurrence patterns across long documents.
 Without the CRUCIBLE diagnostic loop, an operator seeing 70.0\% would not
 know whether to keep revising or replace the judge. The stagnation pattern plus
-the coordinator's consistent diagnosis across nine iterations provides a
+the coordinator's consistent diagnosis across both revision attempts provides a
 principled answer: the rubric is not the limiting factor. The appropriate
 intervention is judge replacement or ensemble augmentation, not further
 revision.
