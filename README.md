@@ -1,8 +1,9 @@
-# Rubric Calibration Agent
+# CRUCIBLE — Rubric Calibration Agent
 
 **What this is:** An autonomous multi-agent system that takes a labeling
 rubric and a set of transcripts, then iteratively improves the rubric
 until three different LLM judges consistently agree on labels.
+This is the reference implementation for CRUCIBLE, a multi-agent framework for automated annotation rubric calibration.
 
 **Why it exists:** When you ask three different AI models to label the
 same content using the same rubric, they often disagree — not because
@@ -19,18 +20,25 @@ agreement. Used as the labeling backbone for
 
 ## Results
 
-After 11 iterations (~2.8 hours), the agent improved agreement from
-a starting point of ~53% to:
+The system ran 10 iterations per domain (~2.8 hours / 170.7 min) on a consumer MacBook (no GPU),
+calibrating rubrics on a local three-judge panel (Llama 3.1 8B, Mistral 7B, Qwen 2.5 7B). Raw
+weighted agreement is inflated by label prevalence, so we report Fleiss' kappa and Gwet's AC1
+(chance-corrected) alongside it:
 
-| Domain | Weighted Agreement | All-Agree Rate | Converged? |
-|---|---|---|---|
-| General Education | **96.7%** | 90% | Yes |
-| Technology & AI | **81.7%** | 45% | Yes |
-| Career & Self-Improvement | **68.4%** | 5% | No (plateau) |
+| Domain | Weighted | All-Agree | Fleiss κ | Gwet AC1 | Status |
+|---|---|---|---|---|---|
+| General Education | 96.7% | 90% | −0.034 | +0.929 | Converged (v0, no changes) |
+| Technology & AI | 81.7% | 45% | +0.246 | +0.286 | Converged (v1, 1 change) |
+| Career & Self-Improvement | 70.0% | 10% | −0.350 | −0.080 | Stagnated (best retained) |
 
-Career content is inherently harder to calibrate — models have
-different priors on what "actionable career advice" means across
-architectures. The 68.4% weighted agreement was the stable plateau.
+The three domains separate cleanly under chance correction. General Education's agreement is
+genuine (AC1 = 0.93; κ ≈ 0 is the prevalence paradox under a ~97%-one-class distribution).
+Technology & AI shows fair agreement and was the one domain a rubric revision helped. Career
+& Self-Improvement sits at the floor of the weighted metric with below-chance agreement — one
+judge (Qwen 2.5) applies a co-occurrence criterion inconsistently with the other two, a
+model-level limitation no rubric revision fixed. This is the capability-ceiling finding: the
+system diagnoses *which* regime a domain is in rather than merely raising raw agreement. Full
+analysis is in the CRUCIBLE paper.
 
 ---
 
@@ -168,6 +176,9 @@ After the run completes, find your results in `reports/rubric_calibration/`:
 
 The `calibrated_rubrics.json` is what feeds directly into the
 [SNR-Detector](https://github.com/biditdas18/snr-detector) labeling pipeline.
+
+Run `python src/agents/compute_agreement.py` to reproduce the Fleiss κ / Gwet AC1 table above
+from the saved labels.
 
 ---
 

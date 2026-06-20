@@ -157,7 +157,7 @@ def run_coordinator(
     change_log: list = None
 ) -> dict:
     if judge_models is None:
-        judge_models = ["llama3.1:latest", "mistral:latest", "gemma2:latest"]
+        judge_models = ["llama3.1:latest", "mistral:latest", "qwen2.5:7b"]
 
     client = anthropic.Anthropic()
     prompt = build_coordinator_prompt(
