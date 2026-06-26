@@ -82,35 +82,34 @@ Inter-Judge Disagreement Resolution}}
 
 % ── Abstract ──────────────────────────────────────────────────────────────
 \begin{abstract}
-Annotation quality is the limiting factor in supervised learning pipelines
+Annotation quality is a limiting factor in supervised learning pipelines
 that rely on the LLM-as-judge paradigm. A domain-agnostic rubric applied to a
 binary transcript classification task yielded only 53\% pairwise inter-judge
-agreement---statistically indistinguishable from random assignment and
+agreement---essentially at chance and
 insufficient to produce reliable training labels. Manual rubric refinement
-does not scale and introduces annotator-specific bias that cannot be audited or
-reproduced. We present \textbf{CRUCIBLE}, a multi-agent system that
+does not scale and introduces annotator-specific bias that usually goes unaudited and is hard to reproduce. We present \textbf{CRUCIBLE}, a multi-agent system that
 automatically calibrates annotation rubrics through iterative disagreement
 diagnosis and targeted revision. Three heterogeneous local judge models
 independently evaluate a transcript corpus; a coordinator model (Claude Sonnet)
-analyses per-model criterion-level disagreement patterns and proposes rubric
-revisions; the loop repeats until weighted inter-judge agreement reaches a
-target threshold or stagnation is detected. CRUCIBLE was developed to solve
+analyzes per-model criterion-level disagreement patterns and proposes rubric
+revisions; the loop repeats until all domains converge or a fixed iteration budget is
+exhausted, flagging any domain whose agreement stagnates. CRUCIBLE was developed to solve
 a concrete annotation bottleneck in building a Signal-to-Noise Ratio (SNR)
 classifier for YouTube educational content---the initial domain-agnostic rubric
-produced labels no better than a coin toss. Applied to 60 YouTube transcripts
+drove inter-judge agreement no better than chance. Applied to 60 YouTube transcripts
 across three content domains---General Education, Technology \& AI, and Career
 \& Self-Improvement---CRUCIBLE reached 96.7\% and 81.7\%
-weighted inter-judge agreement on two domains, up from a 53\% pairwise baseline, while
-the third domain stagnated at 70.0\%---near the floor of the weighted metric---revealing a
-model capability ceiling rather than a successful calibration.
+weighted inter-judge agreement on two domains, while
+the third domain failed to converge---its best rubric reaching only 70.0\%, near the
+floor of the weighted metric---suggesting a model capability ceiling rather than a successful calibration.
 Because raw agreement is inflated by label prevalence, we report chance-corrected
 agreement (Fleiss' $\kappa$ and Gwet's AC1); these locate CRUCIBLE's value less in raising
 raw agreement than in diagnosing whether residual disagreement is rubric-fixable,
 capability-bounded, or prevalence-dominated.
 The third
 domain's stagnation revealed that one judge model systematically
-misapplied a co-occurrence criterion that no rubric revision could compensate
-for. The system also detected and logged a degenerate judge (Gemma 2 9B, producing
+misapplied a co-occurrence criterion that no rubric revision compensated for under this judge
+and prompt setup. The system also detected and logged a degenerate judge (Gemma 2 9B, producing
 identical LOW labels for all 60 transcripts), providing implicit quality
 control. The calibrated rubrics, applied by a separate frontier ensemble (reported in the companion
 paper), produced labels that trained a binary classifier on the SNR task achieving
@@ -147,27 +146,27 @@ labeled training data reliable enough to train a lightweight classifier
 deployable at inference scale.
 
 The initial approach was a domain-agnostic rubric applied across a three-model
-LLM ensemble. It yielded 53\% pairwise inter-judge agreement---a coin toss.
+LLM ensemble. It yielded 53\% pairwise inter-judge agreement, close to the 50\% chance level for binary
+pairwise agreement.
 Two remedies were available: (1)~manually label a gold dataset per domain, or
 (2)~automatically calibrate the rubrics until the ensemble converges.
 Option~1 was rejected on two grounds. First, reviewing transcripts of 10--15
 minute videos at the scale required is prohibitively time-intensive. Second,
-and more fundamentally, manual annotation introduces irreducible personal bias:
+and more fundamentally, manual annotation introduces annotator-specific bias that is reducible only through
+multiple annotators and adjudication:
 an annotator who values career development content intrinsically applies a
-systematically different threshold than one who does not. That bias cannot be
-audited, disclosed, or corrected---it is baked into every label silently.
+systematically different threshold than one who does not. Without a multi-annotator comparison, that bias goes unaudited and undisclosed---baked into every label silently.
 
 We designed CRUCIBLE to solve this. It is a coordinator-mediated, iterative
 calibration loop requiring no human reference labels and no domain expertise
 beyond an initial rubric draft. Three heterogeneous local models serve as
 judges; a frontier coordinator model diagnoses their disagreement patterns and
-proposes targeted rubric revisions; the loop repeats until convergence or
-stagnation. The resulting domain-specific rubrics are versioned and auditable.
+proposes targeted rubric revisions; the loop repeats until convergence or a fixed iteration budget is exhausted. The resulting domain-specific rubrics are versioned and auditable.
 The labels they produce are silver quality---not gold---but empirically
 validated against a measurable inter-judge criterion rather than a single
 annotator's unchecked judgment.
 
-The downstream result validates the approach. The rubrics produced by CRUCIBLE were applied by a separate frontier ensemble (GPT-4o mini,
+The downstream result provides end-to-end evidence for the approach. The rubrics produced by CRUCIBLE were applied by a separate frontier ensemble (GPT-4o mini,
 Gemini 2.5 Flash, Llama 3.3 70B; reported in the companion paper) to label the transcripts;
 an SVM trained on those labels achieved F1\,=\,0.871 with recall\,=\,0.964 on the HIGH-signal
 class, compared to a majority-class baseline of F1\,=\,0.000. We did not attempt training on the original 53\%-agreement
@@ -178,14 +177,15 @@ labels; the majority-class baseline (F1 = 0.000) indicates the task is non-trivi
 \begin{enumerate}[leftmargin=*, label=\arabic*.]
 
 \item \textbf{An automated rubric calibration loop} with coordinator-mediated
-disagreement diagnosis and targeted revision. To our knowledge, no prior work
-runs a fully automated iterative rubric refinement loop driven solely by
-inter-judge agreement signal with no human in the loop.
+disagreement diagnosis and targeted revision. Unlike prior rubric-generation and refinement systems, which are validated against
+reference judgments or accuracy signals, CRUCIBLE studies a narrower setting: iterative
+rubric revision driven solely by inter-judge disagreement, with no human reference labels at
+any stage.
 
 \item \textbf{The model capability ceiling finding.} The system empirically
 distinguishes rubric-fixable disagreement (Technology \& AI: 76.7\%
 $\rightarrow$ 81.7\% in one iteration) from model-capability-bounded disagreement
-(Career \& Self-Improvement: stagnated at 70.0\% despite two revisions). This
+(Career \& Self-Improvement: failed to converge despite two revisions, with its best rubric at 70.0\%). This
 distinction is not a failure; it is a diagnostic.
 
 \item \textbf{Degenerate judge detection.} Gemma~2 9B produced LOW labels for all
@@ -200,11 +200,11 @@ previously converged domains to detect rubric drift.
 \item \textbf{Columnar evaluation order for local multi-model inference.}
 Batching evaluation by model rather than by document reduces model-load events
 from 180 to 3 total per iteration, cutting per-iteration runtime from $>$30
-minutes (incomplete) to $\approx$17 minutes on consumer hardware.
+minutes (incomplete) to $\approx$17--20 minutes on consumer hardware.
 
-\item \textbf{End-to-end empirical validation.} The calibrated rubrics, applied downstream by a frontier ensemble, produced labels that
+\item \textbf{End-to-end consistency evidence.} The calibrated rubrics, applied downstream by a frontier ensemble, produced labels that
 trained an SVM classifier achieving F1\,=\,0.871 and recall\,=\,0.964 on the
-HIGH-signal class, demonstrating that rubric calibration quality translates to downstream classifier
+HIGH-signal class, consistent with rubric calibration quality translating to downstream classifier
 performance.
 
 \end{enumerate}
@@ -218,10 +218,10 @@ The use of large language models as automated evaluators was formalized by
 Zheng et al.~\cite{zheng2023judging} in the MT-Bench benchmark. Subsequent
 work extended this paradigm to structured rubrics~\cite{liu2023geval},
 fine-grained multi-dimensional scoring~\cite{kim2024prometheus}, and
-domain-specific adaptation~\cite{fu2023gptscore}. A persistent finding is
+customizable evaluation dimensions~\cite{fu2023gptscore}. A persistent finding is
 that single-model judges exhibit systematic biases---position bias, verbosity
 bias, and self-preference---that reduce
-reliability~\cite{shi2024judging}. Multi-model ensembles have been proposed to
+reliability~\cite{zheng2023judging, shi2024judging}. Multi-model ensembles have been proposed to
 mitigate these biases~\cite{chan2023chateval}, but ensemble reliability still
 depends on rubric quality.
 
@@ -240,12 +240,13 @@ SciIF~\cite{sciif2026} pairs problems with a fixed catalog of scientific constra
 verification rubrics, but treats the rubric as fixed rather than something to be revised.
 Recent work also automates rubric generation and refinement: RRD~\cite{shen2026rrd} recursively
 decomposes and filters rubric criteria, and GER-Eval~\cite{siro2026ger} has LLMs design and apply their
-own rubrics. Both still rely on reference judgments or accuracy signals; CRUCIBLE instead
+own rubrics. Both are still validated against reference judgments or accuracy signals; CRUCIBLE instead
 drives revision purely from inter-judge agreement with no human reference labels.
 
 \subsection{Disagreement Diagnosis}
 
-AraTable~\cite{aratable2025} proposes a self-deliberation mechanism in which a judge re-examines its own
+Related self-deliberation mechanisms appear in evaluation frameworks such as
+AraTable~\cite{aratable2025}, where a judge re-examines its own
 assessment. Multi-agent debate~\cite{du2023improving} resolves disagreement through structured exchange
 among models. These approaches are self-revision or debate; neither produces a generalized rubric revision that
 improves agreement across the full corpus and on future evaluation runs.
@@ -332,7 +333,7 @@ is no human in the loop after initialization.
 
 % Converged
 \node[pbox={green!60!black}{2.8cm}, right=1.6cm of dec] (conv)
-  {\textbf{Converged}\\save rubric \& labels};
+  {\textbf{Resolved}\\save rubric \& labels};
 
 % Coordinator
 \node[pbox={orange}{9.0cm}, below=0.9cm of dec] (coord)
@@ -348,7 +349,6 @@ is no human in the loop after initialization.
 \node[stobox, below=0.65cm of coord] (stop)
   {\textbf{Stopping:}\;
    all converged \textbar\;
-   stagnation ($\Delta A\!\leq\!0$ for 3 iter.) \textbar\;
    max 10 iterations};
 
 % Outputs
@@ -397,7 +397,7 @@ flow back into the next iteration. No human input occurs after initialization.}
 
 \textbf{Judge models.} Three heterogeneous local models running at
 temperature~0.0 via Ollama: Llama~3.1~8B (Meta), Mistral~7B (Mistral AI), and
-Qwen~2.5~7B (Alibaba). Temperature~0.0 ensures deterministic outputs, isolating
+Qwen~2.5~7B (Alibaba). Temperature~0.0 yields near-deterministic outputs, isolating
 rubric quality as the variable of interest. The three models were chosen to
 represent different training lineages, maximizing the diagnostic value of their
 disagreements.
@@ -448,9 +448,12 @@ to resolve edge cases consistently.
   \item Regression check on each already-converged domain.
 \end{enumerate}
 
-\textbf{Stopping.} Loop terminates when: (a)~all domains converged; (b)~all
-non-converged domains stagnated ($\Delta A_d \leq 0$ for three consecutive
-iterations); or (c)~maximum 10 iterations reached.
+\textbf{Stopping.} A domain is marked \emph{stagnated} when $\Delta A_d \leq 0$ for three
+consecutive iterations; it is then excluded from further revision and held at its current
+rubric, but this does not terminate the loop. The loop terminates only when (a)~all domains
+have converged or (b)~the maximum of 10 iterations is reached. Because Career \&
+Self-Improvement never converged, the present run continued to the 10-iteration cap, with
+converged domains monitored by regression checks and the stagnated domain held in place.
 
 \subsection{Judge Quality Control}
 
@@ -573,7 +576,7 @@ ambiguity.
 We report Fleiss' $\kappa$ and Gwet's AC1 alongside raw weighted agreement, because raw
 agreement is inflated by label prevalence. The three domains separate cleanly under
 chance correction. Technology \& AI shows fair agreement ($\kappa = +0.25$, AC1 = $+0.286$)---the
-only domain with fair chance-corrected agreement, and the only one where a rubric revision raised the raw agreement metric. Career \&
+only domain where a rubric revision carried agreement to the convergence target. Career \&
 Self-Improvement shows below-chance agreement ($\kappa = -0.35$, AC1 = $-0.080$): the
 judges are systematically anti-correlated, the quantitative signature of the capability
 ceiling, since no rubric revision can raise agreement when one judge applies a criterion
@@ -590,7 +593,9 @@ capability-bounded, or prevalence-dominated.
 \begin{table}[ht]
 \centering
 \caption{Weighted agreement (\%) per domain across iterations.
-\checkmark\,=\,converged; $\triangle$\,=\,stagnated.}
+\checkmark\,=\,converged; $\triangle$\,=\,no improvement over best. Career's second revision (v2) regressed at iteration~3 and was not retained;
+iterations~4--10 show no further improvement. The retained output is the best rubric, v1
+(70.0\%, iteration~2).}
 \label{tab:trajectory}
 \small
 \begin{tabular}{cccc}
@@ -607,8 +612,9 @@ capability-bounded, or prevalence-dominated.
 
 Both converged domains remained stable across all subsequent iterations;
 regression checks confirmed no drift.
-For Career, the second revision (v2) regressed to 68.4\%, so the best rubric (v1, 70.0\%,
-iteration~2) was retained as the system output; agreement never reached the 80\% target.
+For Career \& Self-Improvement, the second revision (v2) regressed to 68.4\% at
+iteration~3 and was rejected; no later revision exceeded the best observed rubric, so the
+retained system output is v1 at 70.0\% from iteration~2. Agreement never reached the 80\% target.
 
 \subsection{Downstream Validation: SNR Classifier Performance}
 
@@ -636,8 +642,10 @@ The improvement is attributable to two factors working jointly: domain-specific 
 calibration, which produced the rubrics the frontier ensemble applied, and the ensemble
 labeling methodology, which makes residual model-level bias legible and diagnosable rather
 than invisible. The classifier performance serves as
-end-to-end validation of the calibrated rubrics: a frontier ensemble applying
-them produced labels that train a strong classifier. Full experimental
+end-to-end consistency evidence for the calibrated rubrics: a frontier ensemble applying
+them produced labels that train a strong classifier. Because the held-out labels were produced by the same silver-labeling methodology rather
+than independent human gold labels, this F1 reflects internal consistency with the labeling
+pipeline rather than external, human-validated accuracy. Full experimental
 details of the SNR classifier---dataset construction, synthetic augmentation
 strategy, and complete evaluation protocol---will be reported in the companion
 paper currently in preparation (see footnote~1).
@@ -669,8 +677,9 @@ replaces.
 
 \subsection{The Capability Ceiling Finding}
 
-The Career \& Self-Improvement stagnation at 70.0\% demonstrates that a class
-of disagreement exists that rubric revision cannot fix: disagreement caused by
+The Career \& Self-Improvement ceiling---a best of 70.0\%, short of
+convergence---shows that a class of disagreement exists that rubric revision did not fix under
+this judge and prompt setup: disagreement caused by
 a model's inability to track co-occurrence patterns across long documents.
 Without the CRUCIBLE diagnostic loop, an operator seeing 70.0\% would not
 know whether to keep revising or replace the judge. The stagnation pattern plus
@@ -701,12 +710,13 @@ guarantee without the check.
 \textbf{Single experiment.} Results are for 60 transcripts across three
 domains. Generalization requires validation on other domains and document types.
 
-\textbf{Model-specific ceiling.} The Career stagnation was diagnosed as
-specific to Qwen~2.5~7B. Future work should evaluate judge replacement as a
-recovery strategy.
+\textbf{Model-specific ceiling.} The Career stagnation was diagnosed as specific to Qwen~2.5~7B under our prompt and setup; we
+cannot rule out that a different prompt formulation or judge model would shift the ceiling.
+Future work should evaluate judge replacement and prompt variation as recovery strategies.
 
 \textbf{Silver labels.} Calibrated labels retain the biases of the three judge
-models. For high-stakes tasks, human adjudication of remaining disagreements is
+models, and inter-judge agreement does not guarantee correctness: we have no human gold labels against which to
+measure accuracy. For high-stakes tasks, human adjudication of remaining disagreements is
 recommended.
 
 \textbf{Coordinator dependency.} Revision quality depends on the coordinator
@@ -717,6 +727,11 @@ exact per-domain ceiling can vary by one to two points between runs; the qualita
 (the capability ceiling, degenerate-judge detection, and the three agreement regimes) are robust
 to this variation.
 
+\textbf{No baseline comparison.} We did not benchmark CRUCIBLE against alternative
+calibration strategies---manual rubric revision, a single frontier judge, or simple
+self-refinement. Isolating the contribution of the coordinator-mediated loop from these
+baselines is left to future work.
+
 \textbf{Runtime.} At 17--20 minutes per iteration, a 10-iteration run requires
 nearly three hours. Parallelizing judge evaluation across models would reduce
 iteration time by roughly two-thirds.
@@ -724,15 +739,16 @@ iteration time by roughly two-thirds.
 % ── 8. Conclusion ─────────────────────────────────────────────────────────
 \section{Conclusion}
 
-CRUCIBLE demonstrates that annotation rubric calibration can be fully
-automated through a coordinator-mediated iterative loop driven by inter-judge
+\looseness=-1
+CRUCIBLE demonstrates that annotation rubric calibration can be automated, after an initial rubric draft,
+through a coordinator-mediated iterative loop driven by inter-judge
 agreement signal, with no human in the loop after initialization. The system
-was built to solve a concrete problem---53\% coin-toss agreement that made a
-binary transcript classification task unlearnable---and raw weighted agreement rose to 81.7\%--96.7\% on two domains, though
+was built to solve a concrete problem---53\% pairwise agreement, near chance and too noisy to yield reliable training labels---and raw weighted agreement rose to 81.7\%--96.7\% on two domains, though
 chance-corrected agreement shows the genuine gain concentrates in Technology \& AI; the
 framework's durable value is its diagnosis of disagreement structure and the downstream
 classifier (F1 = 0.871) the calibrated rubrics enabled.
 
+\looseness=-1
 Beyond the specific numbers, CRUCIBLE surfaces one finding with broader
 implications: the capability ceiling. Stagnation under coordinator-mediated revision is a
 diagnostic---it identifies that the limiting factor is a judge's model-level capability,
@@ -747,11 +763,13 @@ available at \url{https://github.com/biditdas18/rubric-calibration-agent}.
 % ── References ────────────────────────────────────────────────────────────
 \bibliographystyle{plain}
 \begin{thebibliography}{99}
+\setlength{\itemsep}{2pt}
+\setlength{\parsep}{0pt}
 
 \bibitem{zheng2023judging}
 L.~Zheng et al.
 \newblock Judging {LLM}-as-a-judge with {MT}-{B}ench and {C}hatbot {A}rena.
-\newblock \emph{NeurIPS}, 36, 2023.
+\newblock \emph{NeurIPS}, 36, pp.\ 46595--46623, 2023.
 
 \bibitem{shi2024judging}
 A.~S. Thakur, K.~Choudhary, V.~S. Ramayapally, S.~Vaidyanathan, and D.~Hupkes.
@@ -763,7 +781,7 @@ A.~S. Thakur, K.~Choudhary, V.~S. Ramayapally, S.~Vaidyanathan, and D.~Hupkes.
 Y.~Liu, D.~Iter, Y.~Xu, S.~Wang, R.~Xu, and C.~Zhu.
 \newblock {G-Eval}: {NLG} evaluation using {GPT-4} with better human
 alignment.
-\newblock In \emph{EMNLP 2023}, 2023.
+\newblock In \emph{EMNLP 2023}, pp.\ 2511--2522, 2023.
 
 \bibitem{kim2024prometheus}
 S.~Kim et al.
@@ -783,19 +801,19 @@ multi-agent debate.
 \newblock \emph{arXiv:2308.07201}, 2023.
 
 \bibitem{hashemi2024llmrubric}
-H.~Hashemi, J.~Saad-Falcon, B.~Van Durme, and C.~Kedzie.
+H.~Hashemi, J.~Eisner, C.~Rosset, B.~Van Durme, and C.~Kedzie.
 \newblock {LLM-Rubric}: A multidimensional, calibrated approach to automated
 evaluation of natural language texts.
-\newblock In \emph{ACL 2024}, pp.\ 8725--8744, 2024.
+\newblock In \emph{ACL 2024}, pp.\ 13806--13834, 2024.
 
 \bibitem{adarubric2026}
 L.~Ding.
-\newblock AdaRubric: Task-Adaptive Rubrics for {LLM} Agent Evaluation.
+\newblock AdaRubric: Task-Adaptive Rubrics for Reliable {LLM} Agent Evaluation and Reward Learning.
 \newblock \emph{arXiv:2603.21362}, 2026.
 
 \bibitem{autorubric2026}
 D.~Rao and C.~Callison-Burch.
-\newblock Autorubric: A Unified Framework for Rubric-Based {LLM} Evaluation.
+\newblock Autorubric: Unifying Rubric-based {LLM} Evaluation.
 \newblock \emph{arXiv:2603.00077}, 2026.
 
 \bibitem{patch2025rubric}
@@ -828,9 +846,9 @@ A.~Ratner et al.
 \newblock \emph{VLDB Endowment}, 11(3):269--282, 2017.
 
 \bibitem{bach2019snorkel}
-S.~H. Bach, D.~Ratner, B.~He, F.~Niu, C.~R{\'e}, and C.~Sa.
-\newblock A case for programmatic weak supervision.
-\newblock \emph{arXiv:1711.10160}, 2019.
+J.~Zhang, C.-Y.~Hsieh, Y.~Yu, C.~Zhang, and A.~Ratner.
+\newblock A Survey on Programmatic Weak Supervision.
+\newblock \emph{arXiv:2202.05433}, 2022.
 
 \bibitem{hinton2015distilling}
 G.~Hinton, O.~Vinyals, and J.~Dean.
