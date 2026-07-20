@@ -1,0 +1,1858 @@
+{
+  "model": "gpt-5.6-sol",
+  "note": "gpt-5.6-sol does not support temperature=0. This characterizes label stability under DEFAULT sampling settings across N repeated calls per transcript, NOT controlled-temperature variance. Instability observed here may reflect default-temperature sampling noise, serving-side non-determinism, or genuine borderline cases -- this script cannot distinguish between those causes.",
+  "n_repeats": 5,
+  "n_transcripts": 60,
+  "stability_summary": {
+    "zeroshot_no_rubric": {
+      "n_transcripts": 60,
+      "fully_stable_5_of_5": 56,
+      "fully_stable_fraction": 0.9333,
+      "mean_stability_ratio": 0.9867,
+      "by_domain": {
+        "career_selfimprovement": {
+          "n": 20,
+          "fully_stable_5_of_5": 19,
+          "mean_stability_ratio": 0.99
+        },
+        "general_education": {
+          "n": 20,
+          "fully_stable_5_of_5": 18,
+          "mean_stability_ratio": 0.98
+        },
+        "tech_ai": {
+          "n": 20,
+          "fully_stable_5_of_5": 19,
+          "mean_stability_ratio": 0.99
+        }
+      }
+    },
+    "frontier_with_rubric": {
+      "n_transcripts": 60,
+      "fully_stable_5_of_5": 52,
+      "fully_stable_fraction": 0.8667,
+      "mean_stability_ratio": 0.97,
+      "by_domain": {
+        "career_selfimprovement": {
+          "n": 20,
+          "fully_stable_5_of_5": 17,
+          "mean_stability_ratio": 0.97
+        },
+        "general_education": {
+          "n": 20,
+          "fully_stable_5_of_5": 16,
+          "mean_stability_ratio": 0.95
+        },
+        "tech_ai": {
+          "n": 20,
+          "fully_stable_5_of_5": 19,
+          "mean_stability_ratio": 0.99
+        }
+      }
+    }
+  },
+  "per_transcript_stability": {
+    "zeroshot_no_rubric": [
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 0,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 1,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 2,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 3,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 4,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 5,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 6,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 7,
+        "labels": [
+          "LOW",
+          "HIGH",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 8,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 9,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 10,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 11,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 12,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 13,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 14,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 15,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 16,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 17,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 18,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 19,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 40,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 41,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 42,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 43,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 44,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 45,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 46,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 47,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 48,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 49,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 50,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 51,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 52,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 53,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 54,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 55,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "LOW"
+        ],
+        "majority_label": "HIGH",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 56,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 57,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 58,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "LOW",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 59,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 20,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 21,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 22,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 23,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 24,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 25,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 26,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 27,
+        "labels": [
+          "HIGH",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 28,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 29,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 30,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 31,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 32,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 33,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 34,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 35,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 36,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 37,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 38,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 39,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      }
+    ],
+    "frontier_with_rubric": [
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 0,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 1,
+        "labels": [
+          "LOW",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 2,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 3,
+        "labels": [
+          "LOW",
+          "LOW",
+          "HIGH",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 4,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 5,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 6,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 7,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 8,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 9,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 10,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 11,
+        "labels": [
+          "LOW",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 12,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 13,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 14,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 15,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 16,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 17,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 18,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "career_selfimprovement",
+        "transcript_index": 19,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 40,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 41,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 42,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 43,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 44,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 45,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 46,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 47,
+        "labels": [
+          "LOW",
+          "LOW",
+          "HIGH",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 48,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 49,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 50,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 51,
+        "labels": [
+          "HIGH",
+          "LOW",
+          "HIGH",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "3/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 52,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 53,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 54,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 55,
+        "labels": [
+          "LOW",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 56,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 57,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "LOW",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 58,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "general_education",
+        "transcript_index": 59,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 20,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 21,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 22,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 23,
+        "labels": [
+          "LOW",
+          "LOW",
+          "HIGH",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "4/5 majority",
+        "n_unique_labels": 2
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 24,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 25,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 26,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 27,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 28,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 29,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 30,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 31,
+        "labels": [
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH",
+          "HIGH"
+        ],
+        "majority_label": "HIGH",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 32,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 33,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 34,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 35,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 36,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 37,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 38,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      },
+      {
+        "domain": "tech_ai",
+        "transcript_index": 39,
+        "labels": [
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW",
+          "LOW"
+        ],
+        "majority_label": "LOW",
+        "stability": "5/5 same",
+        "n_unique_labels": 1
+      }
+    ]
+  },
+  "accuracy_vs_human_n30": {
+    "zeroshot_no_rubric": {
+      "majority_of_5": {
+        "overall": {
+          "n": 30,
+          "agreement": 0.6333,
+          "cohen_kappa": 0.3478,
+          "gwet_ac1": 0.2739
+        },
+        "by_domain": {
+          "career_selfimprovement": {
+            "n": 10,
+            "agreement": 0.6,
+            "cohen_kappa": 0.0,
+            "gwet_ac1": 0.4118
+          },
+          "general_education": {
+            "n": 10,
+            "agreement": 1.0,
+            "cohen_kappa": 1.0,
+            "gwet_ac1": 1.0
+          },
+          "tech_ai": {
+            "n": 10,
+            "agreement": 0.3,
+            "cohen_kappa": 0.0541,
+            "gwet_ac1": -0.3861
+          }
+        }
+      },
+      "original_single_draw": {
+        "overall": {
+          "n": 30,
+          "agreement": 0.6333,
+          "cohen_kappa": 0.3478,
+          "gwet_ac1": 0.2739
+        },
+        "by_domain": {
+          "career_selfimprovement": {
+            "n": 10,
+            "agreement": 0.6,
+            "cohen_kappa": 0.0,
+            "gwet_ac1": 0.4118
+          },
+          "general_education": {
+            "n": 10,
+            "agreement": 1.0,
+            "cohen_kappa": 1.0,
+            "gwet_ac1": 1.0
+          },
+          "tech_ai": {
+            "n": 10,
+            "agreement": 0.3,
+            "cohen_kappa": 0.0541,
+            "gwet_ac1": -0.3861
+          }
+        }
+      }
+    },
+    "frontier_with_rubric": {
+      "majority_of_5": {
+        "overall": {
+          "n": 30,
+          "agreement": 0.5,
+          "cohen_kappa": 0.0,
+          "gwet_ac1": 0.0516
+        },
+        "by_domain": {
+          "career_selfimprovement": {
+            "n": 10,
+            "agreement": 0.2,
+            "cohen_kappa": -0.6667,
+            "gwet_ac1": -0.5385
+          },
+          "general_education": {
+            "n": 10,
+            "agreement": 0.9,
+            "cohen_kappa": 0.6154,
+            "gwet_ac1": 0.8658
+          },
+          "tech_ai": {
+            "n": 10,
+            "agreement": 0.4,
+            "cohen_kappa": 0.0909,
+            "gwet_ac1": -0.1538
+          }
+        }
+      },
+      "original_single_draw": {
+        "overall": {
+          "n": 30,
+          "agreement": 0.5,
+          "cohen_kappa": 0.0,
+          "gwet_ac1": 0.0516
+        },
+        "by_domain": {
+          "career_selfimprovement": {
+            "n": 10,
+            "agreement": 0.2,
+            "cohen_kappa": -0.6667,
+            "gwet_ac1": -0.5385
+          },
+          "general_education": {
+            "n": 10,
+            "agreement": 0.9,
+            "cohen_kappa": 0.6154,
+            "gwet_ac1": 0.8658
+          },
+          "tech_ai": {
+            "n": 10,
+            "agreement": 0.4,
+            "cohen_kappa": 0.0909,
+            "gwet_ac1": -0.1538
+          }
+        }
+      }
+    }
+  }
+}
