@@ -1,0 +1,30 @@
+{
+  "model": "gpt-5.6-sol",
+  "reference": "calibrated_labels.csv (calibrated 3-judge local-panel majority vote)",
+  "overall": {
+    "n": 60,
+    "agreement": 0.5,
+    "cohen_kappa": 0.1818,
+    "gwet_ac1": 0.027
+  },
+  "by_domain": {
+    "career_selfimprovement": {
+      "n": 20,
+      "agreement": 0.15,
+      "cohen_kappa": 0.0116,
+      "gwet_ac1": -0.6958
+    },
+    "general_education": {
+      "n": 20,
+      "agreement": 0.8,
+      "cohen_kappa": 0.0,
+      "gwet_ac1": 0.7561
+    },
+    "tech_ai": {
+      "n": 20,
+      "agreement": 0.55,
+      "cohen_kappa": 0.2105,
+      "gwet_ac1": 0.1529
+    }
+  }
+}

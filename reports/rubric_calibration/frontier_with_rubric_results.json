@@ -1,0 +1,59 @@
+{
+  "model": "gpt-5.6-sol",
+  "reference": "calibrated_labels.csv (calibrated 3-judge local-panel majority vote)",
+  "overall": {
+    "n": 60,
+    "agreement": 0.6333,
+    "cohen_kappa": 0.2979,
+    "gwet_ac1": 0.3272
+  },
+  "by_domain": {
+    "career_selfimprovement": {
+      "n": 20,
+      "agreement": 0.45,
+      "cohen_kappa": 0.1129,
+      "gwet_ac1": -0.0353
+    },
+    "general_education": {
+      "n": 20,
+      "agreement": 0.7,
+      "cohen_kappa": 0.0,
+      "gwet_ac1": 0.5973
+    },
+    "tech_ai": {
+      "n": 20,
+      "agreement": 0.75,
+      "cohen_kappa": 0.5283,
+      "gwet_ac1": 0.5012
+    }
+  },
+  "vs_zeroshot_no_rubric": {
+    "reference": "zeroshot_baseline_labels.csv (same model, naive prompt, no rubric)",
+    "overall": {
+      "n": 60,
+      "agreement": 0.7333,
+      "cohen_kappa": 0.4545,
+      "gwet_ac1": 0.4872
+    },
+    "by_domain": {
+      "career_selfimprovement": {
+        "n": 20,
+        "agreement": 0.6,
+        "cohen_kappa": -0.0959,
+        "gwet_ac1": 0.4118
+      },
+      "general_education": {
+        "n": 20,
+        "agreement": 0.8,
+        "cohen_kappa": 0.4737,
+        "gwet_ac1": 0.68
+      },
+      "tech_ai": {
+        "n": 20,
+        "agreement": 0.8,
+        "cohen_kappa": 0.4937,
+        "gwet_ac1": 0.68
+      }
+    }
+  }
+}
