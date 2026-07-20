@@ -1,0 +1,148 @@
+{
+  "experiment": "A4 -- irreducible-case audit",
+  "independent_audit_portion": {
+    "status": "INFEASIBLE",
+    "reason": "No per-case, per-model criterion-quote log survives from the calibration run. Only calibrated_rubrics.json (final rubric text), calibrated_labels.csv (final relabel of all transcripts), and calibration_summary.json (aggregate per-domain counts) are ever persisted; confirmed by reading calibration_loop.py and coordinator_agent.py directly -- irreducible transcript indices are tracked only as an in-memory Python set, never serialized. The paper's existing claim naming 'Technology & AI transcripts 6 and 7' (Section 5.4) cannot be verified against any surviving artifact and should be softened or removed rather than re-asserted as independently audited."
+  },
+  "sensitivity_analysis_portion": {
+    "status": "COMPLETED",
+    "target_threshold": 0.8,
+    "by_domain": {
+      "career_selfimprovement": {
+        "irreducible_count_from_summary": 0,
+        "sensitivity_applicable": false,
+        "excluded_treatment": {
+          "description": "calibration_summary.json's own tracked final_weighted_agreement (live loop, excludes flagged-irreducible transcripts from the active pool from their flagging iteration onward)",
+          "weighted_agreement": 0.684
+        },
+        "included_treatment": {
+          "description": "calibrated_labels.csv full re-relabel under the final rubric, all N transcripts counted regardless of irreducible-flag status (most direct recoverable proxy for the 'included' condition)",
+          "weighted_agreement": 0.7003,
+          "full_metrics": {
+            "n": 20,
+            "weighted": 0.7003,
+            "all_agree": 0.1,
+            "pairwise": 0.4,
+            "fleiss_kappa": -0.35,
+            "gwet_ac1": -0.08
+          }
+        },
+        "difference_included_minus_excluded": 0.0163,
+        "convergence_conclusion": {
+          "original_reported": "stagnated",
+          "under_included_treatment": "stagnated",
+          "changes_under_either_treatment": false
+        },
+        "n_transcripts_still_disagreeing_in_final_relabel": 18,
+        "disagreeing_transcript_global_indices_in_final_relabel": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "note_if_irr_count_gt_0": null
+      },
+      "tech_ai": {
+        "irreducible_count_from_summary": 2,
+        "sensitivity_applicable": true,
+        "excluded_treatment": {
+          "description": "calibration_summary.json's own tracked final_weighted_agreement (live loop, excludes flagged-irreducible transcripts from the active pool from their flagging iteration onward)",
+          "weighted_agreement": 0.817
+        },
+        "included_treatment": {
+          "description": "calibrated_labels.csv full re-relabel under the final rubric, all N transcripts counted regardless of irreducible-flag status (most direct recoverable proxy for the 'included' condition)",
+          "weighted_agreement": 0.8168,
+          "full_metrics": {
+            "n": 20,
+            "weighted": 0.8168,
+            "all_agree": 0.45,
+            "pairwise": 0.6333,
+            "fleiss_kappa": 0.2457,
+            "gwet_ac1": 0.2865
+          }
+        },
+        "difference_included_minus_excluded": -0.0002,
+        "convergence_conclusion": {
+          "original_reported": "converged",
+          "under_included_treatment": "converged",
+          "changes_under_either_treatment": false
+        },
+        "n_transcripts_still_disagreeing_in_final_relabel": 11,
+        "disagreeing_transcript_global_indices_in_final_relabel": [
+          24,
+          25,
+          28,
+          30,
+          31,
+          33,
+          35,
+          36,
+          37,
+          38,
+          39
+        ],
+        "note_if_irr_count_gt_0": "Cannot pinpoint exactly which of the transcripts still disagreeing in the final relabel correspond to the originally-flagged irreducible cases -- the paper's 'transcripts 6 and 7' claim for tech_ai is not independently verifiable from surviving artifacts. The list above is ALL currently-disagreeing transcripts in the final relabel, an upper-bound superset, not a reconstruction of the specific flagged cases."
+      },
+      "general_education": {
+        "irreducible_count_from_summary": 0,
+        "sensitivity_applicable": false,
+        "excluded_treatment": {
+          "description": "calibration_summary.json's own tracked final_weighted_agreement (live loop, excludes flagged-irreducible transcripts from the active pool from their flagging iteration onward)",
+          "weighted_agreement": 0.967
+        },
+        "included_treatment": {
+          "description": "calibrated_labels.csv full re-relabel under the final rubric, all N transcripts counted regardless of irreducible-flag status (most direct recoverable proxy for the 'included' condition)",
+          "weighted_agreement": 0.9667,
+          "full_metrics": {
+            "n": 20,
+            "weighted": 0.9667,
+            "all_agree": 0.9,
+            "pairwise": 0.9333,
+            "fleiss_kappa": -0.0345,
+            "gwet_ac1": 0.9287
+          }
+        },
+        "difference_included_minus_excluded": -0.0003,
+        "convergence_conclusion": {
+          "original_reported": "converged",
+          "under_included_treatment": "converged",
+          "changes_under_either_treatment": false
+        },
+        "n_transcripts_still_disagreeing_in_final_relabel": 2,
+        "disagreeing_transcript_global_indices_in_final_relabel": [
+          47,
+          58
+        ],
+        "note_if_irr_count_gt_0": null
+      }
+    },
+    "headline_finding": "Technology & AI's convergence conclusion does not change under either treatment: excluded-treatment weighted agreement (0.817, the reported figure) and included-treatment weighted agreement (computed from the full 20-transcript final relabel) round to the same value, both well above the 0.80 threshold. Career & Self-Improvement and General Education have zero irreducible cases (irreducible_count=0), so this sensitivity check is a structural no-op for those two domains -- there is nothing to include or exclude."
+  },
+  "provenance": {
+    "experiment_date_utc": "2026-07-20T09:27:55.109043+00:00",
+    "git_commit_hash": "7bbbbc9dbaab03ec0ba43de6b6d68fdec019d14e",
+    "prompt_template_sha256_16": "506001d5c6e5ab60",
+    "dataset_file_hashes": {
+      "/Users/biditdas/Desktop/snr-submission/rubric-calibration-agent/reports/rubric_calibration/calibrated_labels.csv": "98da83e882f72caa"
+    },
+    "rubric_file_hashes": {
+      "/Users/biditdas/Desktop/snr-submission/rubric-calibration-agent/reports/rubric_calibration/calibration_summary.json": "ef7a550ed600c9ff"
+    },
+    "model_configs": {},
+    "note": "Follow-up experiments were conducted under the closest recoverable configuration and should be interpreted as diagnostic extensions rather than exact controlled replications of the original run. No digest snapshot from the original calibration run was saved to diff against; model files are unchanged on disk since that run per local modification timestamps, which is suggestive but not proof of an exact match."
+  }
+}

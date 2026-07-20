@@ -1,0 +1,253 @@
+{
+  "experiment": "A7 -- Prolific rejection sensitivity check",
+  "rejected_participant_confirmed_via_prolific_dashboard": {
+    "prolific_id": "TECHAI_A1",
+    "annotator_slot": "Annotator1",
+    "completion_time": "39:06 (39 min 6 sec, per Prolific dashboard -- corrects the earlier verbal estimate of '~37 minutes')",
+    "batch_median_completion_time": "140:00 (2:20:00, per Prolific dashboard for this batch -- matches the paper's existing '140-minute estimated completion window' language)",
+    "resolution_note": "User initially recalled 'Annotator3' as rejected; data analysis (exact multiset match of annotator-response subsets against the recorded consensus) identified Annotator1 instead, subsequently confirmed directly against the Prolific dashboard's Rejected tab (single rejected participant, matching ID). Annotator3's responses are identical across both files and were never excluded."
+  },
+  "attention_check_item": "item-21775-3",
+  "per_item_diagnostic": [
+    {
+      "transcript_index": 30,
+      "A1": "HIGH",
+      "A2": "HIGH",
+      "A3": "HIGH",
+      "A4": "HIGH",
+      "official_multiset": [
+        "HIGH",
+        "HIGH",
+        "HIGH"
+      ],
+      "fits": {
+        "A1A2A3_drop_A4": true,
+        "A1A2A4_drop_A3": true,
+        "A1A3A4_drop_A2": true,
+        "A2A3A4_drop_A1": true
+      }
+    },
+    {
+      "transcript_index": 22,
+      "A1": "HIGH",
+      "A2": "HIGH",
+      "A3": "HIGH",
+      "A4": "HIGH",
+      "official_multiset": [
+        "HIGH",
+        "HIGH",
+        "HIGH"
+      ],
+      "fits": {
+        "A1A2A3_drop_A4": true,
+        "A1A2A4_drop_A3": true,
+        "A1A3A4_drop_A2": true,
+        "A2A3A4_drop_A1": true
+      }
+    },
+    {
+      "transcript_index": 24,
+      "A1": "HIGH",
+      "A2": "LOW",
+      "A3": "LOW",
+      "A4": "HIGH",
+      "official_multiset": [
+        "HIGH",
+        "LOW",
+        "LOW"
+      ],
+      "fits": {
+        "A1A2A3_drop_A4": true,
+        "A1A2A4_drop_A3": false,
+        "A1A3A4_drop_A2": false,
+        "A2A3A4_drop_A1": true
+      }
+    },
+    {
+      "transcript_index": 26,
+      "A1": "HIGH",
+      "A2": "HIGH",
+      "A3": "LOW",
+      "A4": "HIGH",
+      "official_multiset": [
+        "HIGH",
+        "HIGH",
+        "LOW"
+      ],
+      "fits": {
+        "A1A2A3_drop_A4": true,
+        "A1A2A4_drop_A3": false,
+        "A1A3A4_drop_A2": true,
+        "A2A3A4_drop_A1": true
+      }
+    },
+    {
+      "transcript_index": 28,
+      "A1": "HIGH",
+      "A2": "HIGH",
+      "A3": "HIGH",
+      "A4": "HIGH",
+      "official_multiset": [
+        "HIGH",
+        "HIGH",
+        "HIGH"
+      ],
+      "fits": {
+        "A1A2A3_drop_A4": true,
+        "A1A2A4_drop_A3": true,
+        "A1A3A4_drop_A2": true,
+        "A2A3A4_drop_A1": true
+      }
+    },
+    {
+      "transcript_index": 20,
+      "A1": "LOW",
+      "A2": "HIGH",
+      "A3": "HIGH",
+      "A4": "HIGH",
+      "official_multiset": [
+        "HIGH",
+        "HIGH",
+        "HIGH"
+      ],
+      "fits": {
+        "A1A2A3_drop_A4": false,
+        "A1A2A4_drop_A3": false,
+        "A1A3A4_drop_A2": false,
+        "A2A3A4_drop_A1": true
+      }
+    },
+    {
+      "transcript_index": 38,
+      "A1": "HIGH",
+      "A2": "HIGH",
+      "A3": "HIGH",
+      "A4": "LOW",
+      "official_multiset": [
+        "HIGH",
+        "HIGH",
+        "LOW"
+      ],
+      "fits": {
+        "A1A2A3_drop_A4": false,
+        "A1A2A4_drop_A3": true,
+        "A1A3A4_drop_A2": true,
+        "A2A3A4_drop_A1": true
+      }
+    },
+    {
+      "transcript_index": 32,
+      "A1": "LOW",
+      "A2": "HIGH",
+      "A3": "HIGH",
+      "A4": "HIGH",
+      "official_multiset": [
+        "HIGH",
+        "HIGH",
+        "HIGH"
+      ],
+      "fits": {
+        "A1A2A3_drop_A4": false,
+        "A1A2A4_drop_A3": false,
+        "A1A3A4_drop_A2": false,
+        "A2A3A4_drop_A1": true
+      }
+    },
+    {
+      "transcript_index": 34,
+      "A1": "HIGH",
+      "A2": "LOW",
+      "A3": "HIGH",
+      "A4": "HIGH",
+      "official_multiset": [
+        "HIGH",
+        "HIGH",
+        "LOW"
+      ],
+      "fits": {
+        "A1A2A3_drop_A4": true,
+        "A1A2A4_drop_A3": true,
+        "A1A3A4_drop_A2": false,
+        "A2A3A4_drop_A1": true
+      }
+    },
+    {
+      "transcript_index": 36,
+      "A1": "HIGH",
+      "A2": "HIGH",
+      "A3": "HIGH",
+      "A4": "HIGH",
+      "official_multiset": [
+        "HIGH",
+        "HIGH",
+        "HIGH"
+      ],
+      "fits": {
+        "A1A2A3_drop_A4": true,
+        "A1A2A4_drop_A3": true,
+        "A1A3A4_drop_A2": true,
+        "A2A3A4_drop_A1": true
+      }
+    }
+  ],
+  "sensitivity_recompute": {
+    "description": "tech_ai human consensus recomputed with Annotator1 (excluded from the official consensus) reinstated via majority({A1,A2,A3}), in place of the official majority({A2,A3,A4}).",
+    "official_consensus": {
+      "20": "HIGH",
+      "22": "HIGH",
+      "24": "LOW",
+      "26": "HIGH",
+      "28": "HIGH",
+      "30": "HIGH",
+      "32": "HIGH",
+      "34": "HIGH",
+      "36": "HIGH",
+      "38": "HIGH"
+    },
+    "reinstated_A1_consensus": {
+      "30": "HIGH",
+      "22": "HIGH",
+      "24": "LOW",
+      "26": "HIGH",
+      "28": "HIGH",
+      "20": "HIGH",
+      "38": "HIGH",
+      "32": "HIGH",
+      "34": "HIGH",
+      "36": "HIGH"
+    },
+    "items_where_consensus_label_changes": {},
+    "n_items_changed": 0,
+    "local_panel_vs_human_official": {
+      "n": 10,
+      "agreement": 0.5,
+      "cohen_kappa": -0.1905,
+      "gwet_ac1": 0.2
+    },
+    "local_panel_vs_human_reinstated": {
+      "n": 10,
+      "agreement": 0.5,
+      "cohen_kappa": -0.1905,
+      "gwet_ac1": 0.2
+    },
+    "headline_finding": "Zero label changes across all 10 items; local-panel-vs-human agreement is identical (0.500) under both the official and reinstated-annotator consensus. The domain-level conclusion does not hinge on this exclusion, regardless of which annotator was actually excluded."
+  },
+  "rejection_criteria_confirmed": {
+    "applies_to": "Annotator1 (Prolific ID TECHAI_A1)",
+    "criteria": "Multi-factor judgment call made after reviewing full submission content (NOT a blind/pre-committed rejection): (1) completion time 39:06 vs. this batch's displayed median of 140:00, (2) failed the domain's hidden attention-check item, (3) shallow/copy-pasted justifications rather than substantive reasoning."
+  },
+  "provenance": {
+    "experiment_date_utc": "2026-07-20T09:27:55.464235+00:00",
+    "git_commit_hash": "7bbbbc9dbaab03ec0ba43de6b6d68fdec019d14e",
+    "prompt_template_sha256_16": "506001d5c6e5ab60",
+    "dataset_file_hashes": {
+      "/Users/biditdas/Desktop/snr-submission/rubric-calibration-agent/gold-sampled-dataset/CRUCIBLE Human Validation Study \u2014 2026 (Tech & AI batch)/019f5b1c-9fa7-7351-9a0b-c5399048f55f - v1(reject).csv": "f6fc52d4cd23d3ba",
+      "/Users/biditdas/Desktop/snr-submission/rubric-calibration-agent/gold-sampled-dataset/CRUCIBLE Human Validation Study \u2014 2026 (Tech & AI batch)/019f5b1c-9fa7-7351-9a0b-c5399048f55f - v2.csv": "79d5a0694cab523e",
+      "/Users/biditdas/Desktop/snr-submission/rubric-calibration-agent/gold-sampled-dataset/human_validation_ground_truth.csv": "b68a7e8d9756049a",
+      "/Users/biditdas/Desktop/snr-submission/rubric-calibration-agent/data/review_queue.csv": "8fa81faffd6100e1"
+    },
+    "rubric_file_hashes": {},
+    "model_configs": {},
+    "note": "Follow-up experiments were conducted under the closest recoverable configuration and should be interpreted as diagnostic extensions rather than exact controlled replications of the original run. No digest snapshot from the original calibration run was saved to diff against; model files are unchanged on disk since that run per local modification timestamps, which is suggestive but not proof of an exact match."
+  }
+}

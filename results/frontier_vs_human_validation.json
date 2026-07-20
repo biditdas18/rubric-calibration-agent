@@ -1,0 +1,128 @@
+{
+  "experiment": "A3 -- frontier-ensemble labels vs. human reference set",
+  "corpora_overlap": "FULL: snr-detector's 60-transcript corpus is byte-identical, same order, to CRUCIBLE's 60-transcript corpus (verified by exact transcript-text match at all 60 positions before use).",
+  "n_human_validation_items": 30,
+  "n_items_with_valid_frontier_labels": 30,
+  "items_missing_or_invalid_frontier_label": [],
+  "frontier_models": "GPT-4o mini (openai_label), Gemini 2.5 Flash (gemini_label), Llama 3.3 70B via Groq (groq_label)",
+  "a_frontier_majority_vs_human": {
+    "overall": {
+      "n": 30,
+      "agreement": 0.5667,
+      "cohen_kappa": 0.1333,
+      "gwet_ac1": 0.1781
+    },
+    "by_domain": {
+      "career_selfimprovement": {
+        "n": 10,
+        "agreement": 0.3,
+        "cohen_kappa": -0.5217,
+        "gwet_ac1": -0.2844
+      },
+      "general_education": {
+        "n": 10,
+        "agreement": 1.0,
+        "cohen_kappa": 1.0,
+        "gwet_ac1": 1.0
+      },
+      "tech_ai": {
+        "n": 10,
+        "agreement": 0.4,
+        "cohen_kappa": 0.0909,
+        "gwet_ac1": -0.1538
+      }
+    }
+  },
+  "b_individual_frontier_judges_vs_human": {
+    "openai_label": {
+      "overall": {
+        "n": 30,
+        "agreement": 0.5667,
+        "cohen_kappa": 0.1841,
+        "gwet_ac1": 0.1568
+      },
+      "by_domain": {
+        "career_selfimprovement": {
+          "n": 10,
+          "agreement": 0.4,
+          "cohen_kappa": -0.3636,
+          "gwet_ac1": -0.0345
+        },
+        "general_education": {
+          "n": 10,
+          "agreement": 0.9,
+          "cohen_kappa": 0.6154,
+          "gwet_ac1": 0.8658
+        },
+        "tech_ai": {
+          "n": 10,
+          "agreement": 0.4,
+          "cohen_kappa": 0.0909,
+          "gwet_ac1": -0.1538
+        }
+      }
+    },
+    "gemini_label": {
+      "overall": {
+        "n": 20,
+        "agreement": 0.55,
+        "cohen_kappa": 0.0426,
+        "gwet_ac1": 0.1529
+      },
+      "by_domain": {
+        "career_selfimprovement": {
+          "n": 7,
+          "agreement": 0.2857,
+          "cohen_kappa": -0.2069,
+          "gwet_ac1": -0.4286
+        },
+        "general_education": {
+          "n": 8,
+          "agreement": 1.0,
+          "cohen_kappa": 1.0,
+          "gwet_ac1": 1.0
+        },
+        "tech_ai": {
+          "n": 5,
+          "agreement": 0.2,
+          "cohen_kappa": 0.0,
+          "gwet_ac1": -0.5385
+        }
+      }
+    },
+    "groq_label": {
+      "overall": {
+        "n": 30,
+        "agreement": 0.6,
+        "cohen_kappa": 0.1743,
+        "gwet_ac1": 0.2531
+      },
+      "by_domain": {
+        "career_selfimprovement": {
+          "n": 10,
+          "agreement": 0.4,
+          "cohen_kappa": -0.25,
+          "gwet_ac1": -0.1538
+        },
+        "general_education": {
+          "n": 10,
+          "agreement": 1.0,
+          "cohen_kappa": 1.0,
+          "gwet_ac1": 1.0
+        },
+        "tech_ai": {
+          "n": 10,
+          "agreement": 0.4,
+          "cohen_kappa": 0.0909,
+          "gwet_ac1": -0.1538
+        }
+      }
+    }
+  },
+  "c_local_panel_vs_frontier_panel": {
+    "n": 30,
+    "agreement": 0.6667,
+    "cohen_kappa": 0.3333,
+    "gwet_ac1": 0.4
+  }
+}

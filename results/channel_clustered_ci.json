@@ -1,0 +1,62 @@
+{
+  "experiment": "B13 -- channel-clustered bootstrap CI",
+  "n_boot": 10000,
+  "by_domain": {
+    "career_selfimprovement": {
+      "n_channels": 10,
+      "point_estimate_pct": 50.0,
+      "transcript_resampled_ci_pct": [
+        20.0,
+        80.0
+      ],
+      "channel_resampled_ci_pct": [
+        20.0,
+        80.0
+      ],
+      "ci_width_transcript": 60.0,
+      "ci_width_channel": 60.0
+    },
+    "general_education": {
+      "n_channels": 9,
+      "point_estimate_pct": 90.0,
+      "transcript_resampled_ci_pct": [
+        70.0,
+        100.0
+      ],
+      "channel_resampled_ci_pct": [
+        66.7,
+        100.0
+      ],
+      "ci_width_transcript": 30.0,
+      "ci_width_channel": 33.3
+    },
+    "tech_ai": {
+      "n_channels": 8,
+      "point_estimate_pct": 50.0,
+      "transcript_resampled_ci_pct": [
+        20.0,
+        80.0
+      ],
+      "channel_resampled_ci_pct": [
+        22.2,
+        77.8
+      ],
+      "ci_width_transcript": 60.0,
+      "ci_width_channel": 55.6
+    }
+  },
+  "overall": {
+    "n_channels": 27,
+    "point_estimate_pct": 63.3,
+    "transcript_resampled_ci_pct": [
+      46.7,
+      80.0
+    ],
+    "channel_resampled_ci_pct": [
+      46.7,
+      79.3
+    ],
+    "ci_width_transcript": 33.3,
+    "ci_width_channel": 32.6
+  }
+}
