@@ -1,0 +1,94 @@
+{
+  "reference": "gold-sampled-dataset/human_validation_ground_truth.csv (human_consensus_label, n=30, 10/domain)",
+  "approaches": {
+    "local_panel_plus_rubric": {
+      "source": "calibrated_labels.csv",
+      "overall": {
+        "n": 30,
+        "agreement": 0.6333,
+        "cohen_kappa": -0.0645,
+        "gwet_ac1": 0.4449
+      },
+      "by_domain": {
+        "career_selfimprovement": {
+          "n": 10,
+          "agreement": 0.5,
+          "cohen_kappa": 0.1379,
+          "gwet_ac1": 0.0826
+        },
+        "general_education": {
+          "n": 10,
+          "agreement": 0.9,
+          "cohen_kappa": 0.0,
+          "gwet_ac1": 0.8895
+        },
+        "tech_ai": {
+          "n": 10,
+          "agreement": 0.5,
+          "cohen_kappa": -0.1905,
+          "gwet_ac1": 0.2
+        }
+      }
+    },
+    "frontier_no_rubric": {
+      "source": "zeroshot_baseline_labels.csv",
+      "model": "gpt-5.6-sol",
+      "overall": {
+        "n": 30,
+        "agreement": 0.6333,
+        "cohen_kappa": 0.3478,
+        "gwet_ac1": 0.2739
+      },
+      "by_domain": {
+        "career_selfimprovement": {
+          "n": 10,
+          "agreement": 0.6,
+          "cohen_kappa": 0.0,
+          "gwet_ac1": 0.4118
+        },
+        "general_education": {
+          "n": 10,
+          "agreement": 1.0,
+          "cohen_kappa": 1.0,
+          "gwet_ac1": 1.0
+        },
+        "tech_ai": {
+          "n": 10,
+          "agreement": 0.3,
+          "cohen_kappa": 0.0541,
+          "gwet_ac1": -0.3861
+        }
+      }
+    },
+    "frontier_plus_rubric": {
+      "source": "frontier_with_rubric_labels.csv",
+      "model": "gpt-5.6-sol",
+      "overall": {
+        "n": 30,
+        "agreement": 0.5,
+        "cohen_kappa": 0.0,
+        "gwet_ac1": 0.0516
+      },
+      "by_domain": {
+        "career_selfimprovement": {
+          "n": 10,
+          "agreement": 0.2,
+          "cohen_kappa": -0.6667,
+          "gwet_ac1": -0.5385
+        },
+        "general_education": {
+          "n": 10,
+          "agreement": 0.9,
+          "cohen_kappa": 0.6154,
+          "gwet_ac1": 0.8658
+        },
+        "tech_ai": {
+          "n": 10,
+          "agreement": 0.4,
+          "cohen_kappa": 0.0909,
+          "gwet_ac1": -0.1538
+        }
+      }
+    }
+  }
+}
