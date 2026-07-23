@@ -18,6 +18,16 @@ agreement. Used as the labeling backbone for
 
 ---
 
+## Paper
+
+**CRUCIBLE: A Multi-Agent Framework for Automated Annotation Rubric Calibration via Iterative Inter-Judge Disagreement Resolution**
+Bidit Das — Independent Researcher, July 2026
+
+Available on SSRN: https://ssrn.com/abstract=7025019
+DOI: https://dx.doi.org/10.2139/ssrn.7025019
+
+---
+
 ## Results
 
 The system ran 10 iterations per domain (~2.8 hours / 170.7 min) on a consumer MacBook (no GPU),
@@ -33,12 +43,24 @@ weighted agreement is inflated by label prevalence, so we report Fleiss' kappa a
 
 The three domains separate cleanly under chance correction. General Education's agreement is
 genuine (AC1 = 0.93; κ ≈ 0 is the prevalence paradox under a ~97%-one-class distribution).
-Technology & AI shows fair agreement and was the one domain a rubric revision helped. Career
-& Self-Improvement sits at the floor of the weighted metric with below-chance agreement — one
-judge (Qwen 2.5) applies a co-occurrence criterion inconsistently with the other two, a
-model-level limitation no rubric revision fixed. This is the capability-ceiling finding: the
-system diagnoses *which* regime a domain is in rather than merely raising raw agreement. Full
-analysis is in the CRUCIBLE paper.
+Technology & AI shows fair agreement and was the one domain a rubric revision helped — but a
+subsequent human validation study (30 independent Prolific annotators, 10 per domain) found that
+this domain's high automated agreement (81.7%) masked a systematic divergence from human
+judgment: human consensus matched CRUCIBLE's calibrated labels only 50% of the time, identical
+to the stagnated Career domain. General Education's convergence was independently supported:
+human consensus matched CRUCIBLE's labels 90% of the time. Career & Self-Improvement sits at
+the floor of the weighted metric with below-chance agreement — one judge (Qwen 2.5) applies a
+co-occurrence criterion inconsistently with the other two. A judge-replacement test confirmed this
+is panel-specific: replacing Qwen raised inter-judge agreement to 88.3%, but the panel's
+majority-vote output was mechanically identical (0 of 20 labels changed), because the two
+retained judges already agreed on 90% of transcripts.
+
+**The paper's central finding:** automated inter-judge convergence is not sufficient evidence of
+alignment with human judgment. A domain can converge confidently while its labels diverge from
+independent human assessment, and interventions that raise agreement can do so without changing
+the underlying output at all. Full analysis — including human validation, frontier-model comparison,
+reasoning-before-label ablation, held-out generalization, and rubric portability tests — is in the
+CRUCIBLE paper linked above.
 
 ---
 
@@ -79,6 +101,9 @@ analysis is in the CRUCIBLE paper.
 4. The updated rubric is used in the next iteration
 5. Transcripts that never converge (irreducible disagreements) are
    flagged and excluded
+6. **Human validation** — calibrated rubrics should be audited against independent human
+   judgment on a stratified sample before treating automated convergence as a quality signal.
+   The system's convergence metric is a stopping rule, not a correctness guarantee.
 
 ---
 
@@ -208,8 +233,13 @@ numpy
 
 ## Related
 
-- **SNR-Detector** — the classifier that uses these calibrated rubrics:
-  https://github.com/biditdas18/snr-detector
+- **SNR-Detector** — the classifier that uses these calibrated rubrics as its labeling backbone:  
+  https://github.com/biditdas18/snr-detector  
+  SSRN preprint: https://ssrn.com/abstract=6866745
+
+- **CRUCIBLE paper** — full experimental detail, human validation study, and additional analyses:  
+  https://ssrn.com/abstract=7025019  
+  DOI: 10.2139/ssrn.7025019
 
 ---
 
