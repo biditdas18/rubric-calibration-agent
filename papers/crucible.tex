@@ -7,7 +7,7 @@
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{url}
-\usepackage{microtype}
+\usepackage[expansion=false]{microtype}
 \usepackage{parskip}
 \usepackage{setspace}
 \usepackage{titlesec}
@@ -29,6 +29,7 @@
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt}
+\sloppy
 
 % ── TikZ styles ───────────────────────────────────────────────────────────
 \tikzset{
@@ -74,7 +75,7 @@ Inter-Judge Disagreement Resolution}}
   \texttt{biditdas18@gmail.com}
 }
 
-\date{June 2026}
+\date{July 2026}
 
 % ══════════════════════════════════════════════════════════════════════════
 \begin{document}
@@ -84,8 +85,8 @@ Inter-Judge Disagreement Resolution}}
 \begin{abstract}
 Annotation quality is a limiting factor in supervised learning pipelines
 that rely on the LLM-as-judge paradigm. This paper's central finding is that
-automated inter-judge convergence is \emph{necessary but not sufficient}
-evidence of label quality---we demonstrate this four ways, on the same
+automated inter-judge convergence is \emph{not sufficient evidence of
+alignment with human judgment}---we demonstrate this four ways, on the same
 underlying corpus and (for three of the four) the same 30-item human
 reference set, so these should be read as related diagnostic analyses
 rather than fully independent replications: a human validation study
@@ -93,17 +94,22 @@ showing one domain's high inter-judge agreement masked a systematic
 divergence from human judgment; a frontier-model baseline showing a
 calibrated rubric does not transfer to a different judge model; a
 reasoning-before-label ablation showing explicit reasoning can raise
-inter-judge agreement without raising agreement with human judgment; and,
-most directly, replacing the one local judge diagnosed as the bottleneck:
-inter-judge agreement rose substantially (0.700\,$\to$\,0.883) while
-accuracy against human-labeled transcripts stayed bit-for-bit identical.
-We reach this finding while building and evaluating \textbf{CRUCIBLE}, a
-multi-agent system that automatically calibrates annotation rubrics through
-iterative disagreement diagnosis and targeted revision. Manual rubric
-refinement does not scale and introduces annotator-specific bias that
-usually goes unaudited and is hard to reproduce. Three heterogeneous local
-judge models independently evaluate a transcript corpus; a coordinator model
-(Claude Sonnet) analyzes per-model criterion-level disagreement patterns and
+inter-judge agreement without raising agreement with human judgment; and a
+judge-replacement test on the one local judge diagnosed as the bottleneck,
+which raised inter-judge agreement substantially (0.700\,$\to$\,0.883) by
+converting near-unanimous dissent into full unanimity, while leaving the
+panel's majority-vote output---and its accuracy against human-labeled
+transcripts---bit-for-bit identical: the two retained judges already
+agreed with each other on 90\% of this domain's transcripts, so the third
+judge could not have changed the majority label on this set regardless of
+which model it was (Section~\ref{sec:judgereplacement}). We reach this
+finding while building and evaluating \textbf{CRUCIBLE}, a multi-agent
+system that automatically calibrates annotation rubrics through iterative
+disagreement diagnosis and targeted revision. Manual rubric refinement
+does not scale and introduces annotator-specific bias that usually goes
+unaudited and is hard to reproduce. Three heterogeneous local judge models
+independently evaluate a transcript corpus; a coordinator model (Claude
+Sonnet) analyzes per-model criterion-level disagreement patterns and
 proposes rubric revisions; the loop repeats until all domains converge or a
 fixed iteration budget is exhausted, flagging any domain whose agreement
 stagnates. CRUCIBLE was developed to solve a concrete annotation bottleneck
@@ -117,29 +123,35 @@ Self-Improvement---CRUCIBLE reached 96.7\% and 81.7\% weighted inter-judge
 agreement on two domains, while the third domain failed to converge, its
 best rubric reaching only 70.0\%, near the floor of the weighted metric. We
 initially read this as a pure model-capability ceiling; our later
-reasoning-before-label and human-validation analyses instead indicate it
-reflects a shared misalignment between judge models and human annotators
-over what counts as ``substantive'' career content, rather than solely a
-capability limit of the judge models in isolation. Because raw agreement is
-inflated by label prevalence, we report chance-corrected agreement (Fleiss'
-$\kappa$ and Gwet's AC1); these---read alongside the human validation
+reasoning-before-label and human-validation analyses instead suggest a
+shared misalignment between judge models and human annotators over what
+counts as ``substantive'' career content plausibly contributes alongside
+any capability limit of the judge models in isolation---though, per the
+judge-replacement finding above, we cannot rule out that the ceiling on
+this specific panel was partly a structural artifact of two judges already
+agreeing with each other. Because raw agreement is inflated by label
+prevalence, we report chance-corrected agreement (Fleiss' $\kappa$ and
+Gwet's AC1), which are less affected by the prevalence paradox under these
+marginals than raw agreement; these---read alongside the human validation
 study---locate CRUCIBLE's value less in raising raw agreement than in
 diagnosing whether residual disagreement is rubric-fixable,
 capability-bounded, or prevalence-dominated, and in showing when that
-automated diagnosis itself needs an external check. We additionally verify
-that the calibrated rubrics' effect on agreement generalizes to a
-90-transcript corpus never seen by the coordinator during revision (see
-Limitations for the precise sense in which this corpus is unseen). A
-pre-run discriminative-validity screening check identified a degenerate
-judge (Gemma 2 9B, producing identical LOW labels for all 60 transcripts)
-during development, before the calibration run reported here; it was
-replaced with Qwen 2.5 7B. The calibrated rubrics, applied by a separate
-frontier ensemble (reported in the companion paper), produced labels that
-trained a binary classifier on the SNR task achieving F1\,=\,0.871 with
-recall\,=\,0.964 on the HIGH-signal class as a downstream case study; we
-separately find that this same frontier ensemble tracks human judgment
-about as loosely as the local calibration panel does. Code and calibration
-logs are available at
+automated diagnosis itself needs an external check. We additionally check
+whether the calibrated rubrics' effect on agreement generalizes to a
+90-transcript corpus never seen by the coordinator during revision; the
+weighted-agreement metric improves there too, though the underlying
+majority-vote annotations themselves do not change on any of the 90
+transcripts (Section~\ref{sec:heldout}; see Limitations for the precise
+sense in which this corpus is unseen). A pre-run discriminative-validity
+screening check identified a degenerate judge (Gemma 2 9B, producing
+identical LOW labels for all 60 transcripts) during development, before
+the calibration run reported here; it was replaced with Qwen 2.5 7B. The
+calibrated rubrics, applied by a separate frontier ensemble (reported in
+the companion paper), produced labels that trained a binary classifier on
+the SNR task achieving F1\,=\,0.871 with recall\,=\,0.964 on the
+HIGH-signal class as a downstream case study; we separately find that this
+same frontier ensemble tracks human judgment about as loosely as the local
+calibration panel does. Code and calibration logs are available at
 \url{https://github.com/biditdas18/rubric-calibration-agent}.
 \end{abstract}
 
@@ -204,13 +216,15 @@ annotator's unchecked judgment.
 
 The downstream classifier serves as a case study in whether the calibrated
 labels are usable at scale, not as an independent validation of their
-correctness (Section~\ref{sec:results} and Limitations address that
-question directly). The rubrics produced by CRUCIBLE were applied by a
+agreement with the available human reference (Section~\ref{sec:results}
+and Limitations address that question directly). The rubrics produced by
+CRUCIBLE were applied by a
 separate frontier ensemble (GPT-4o mini, Gemini 2.5 Flash, Llama 3.3 70B;
 reported in the companion paper) to label transcripts; an SVM trained on
 389 transcripts (89 real, labeled via this calibrated-rubric ensemble
 methodology, plus 300 synthetically generated transcripts with labels
-correct by construction) achieved F1\,=\,0.871 with recall\,=\,0.964 on the
+assigned by construction, intended to match the generating prompt's target
+class) achieved F1\,=\,0.871 with recall\,=\,0.964 on the
 HIGH-signal class, evaluated on a disjoint held-out set of 60 real
 transcripts, compared to a majority-class baseline of F1\,=\,0.000 and, in
 a synthetic-only training ablation reported in the companion
@@ -242,24 +256,29 @@ questions explicitly in Sections~\ref{sec:results}--\ref{sec:discussion}.
 
 \begin{enumerate}[leftmargin=*, label=\arabic*.]
 
-\item \textbf{Automated inter-judge convergence is necessary but not
-sufficient evidence of label quality.} We demonstrate this four ways: a
+\item \textbf{Automated inter-judge convergence is not sufficient evidence
+of alignment with human judgment.} We demonstrate this four ways: a
 human validation study (Section~\ref{sec:humanval}) shows Technology \& AI's
 high inter-judge agreement (81.7\%) masked a systematic divergence from
 human judgment; a frontier-model baseline (Section~\ref{sec:portability})
 shows the calibrated rubric does not transfer to a different judge model,
 instead teaching it to mimic the local ensemble's specific errors rather
-than improving its accuracy against human judgment; a reasoning-before-label
+than improving its agreement with human judgment; a reasoning-before-label
 ablation (Section~\ref{sec:cotresults}) shows explicit reasoning can raise
-inter-judge agreement without raising agreement with human judgment; and,
-most directly, a judge-replacement test (Section~\ref{sec:judgereplacement})
-shows that replacing the diagnosed-bottleneck judge raises inter-judge
-agreement substantially (0.700\,$\to$\,0.883) while leaving accuracy against
-human-labeled transcripts completely unchanged. The first three share a
-common 30-item human-reference set and are related diagnostic analyses
-rather than independent replications; the fourth is a single controlled
-trial on the same reference set. Together they show agreement metrics can
-be high, or can be made to rise, while correctness is not.
+inter-judge agreement without raising agreement with human judgment; and a
+judge-replacement test (Section~\ref{sec:judgereplacement}) raises
+inter-judge agreement substantially (0.700\,$\to$\,0.883) while leaving the
+panel's majority-vote output---and its agreement with human-labeled
+transcripts---completely unchanged, since the two retained judges already
+agreed with each other on 90\% of this domain's transcripts, so the third
+judge could not have changed the majority label regardless of which model
+it was; this fourth result is narrower than the raw agreement numbers
+alone suggest (Section~\ref{sec:judgereplacement} discusses the
+implications). The first three share a common 30-item human-reference set
+and are related diagnostic analyses rather than independent replications;
+the fourth is a single controlled trial on the same reference set.
+Together they show agreement metrics can be high, or can be made to rise,
+while agreement with the available human reference is not.
 
 \item \textbf{An automated rubric calibration loop} with coordinator-mediated
 disagreement diagnosis and targeted revision. Unlike prior rubric-generation and refinement systems, which are validated against
@@ -270,11 +289,13 @@ any stage.
 \item \textbf{A held-out generalization check.} Re-scoring both the initial
 and final calibrated rubrics on a 90-transcript corpus never shown to the
 coordinator during revision (Section~\ref{sec:heldout}) shows the revision's
-effect on inter-judge agreement generalizes past the calibration corpus for
-the two domains that were actually revised, with a positive, CI-excluding-zero
-effect for Career \& Self-Improvement specifically---though, as detailed
-there, this generalization is driven disproportionately by one judge's
-behavior shifting, not uniform three-way convergence.
+effect on the weighted inter-judge \emph{agreement metric} generalizes past
+the calibration corpus for the two domains that were actually revised, with
+a positive, CI-excluding-zero effect for Career \& Self-Improvement
+specifically---though, as detailed there, this generalization is driven
+disproportionately by one judge's behavior shifting, not uniform three-way
+convergence, and the underlying majority-vote annotations do not change on
+any of the 90 transcripts under either rubric.
 
 \item \textbf{The capability-ceiling finding, revised.} The system
 empirically distinguishes rubric-fixable disagreement (Technology \& AI:
@@ -282,33 +303,40 @@ empirically distinguishes rubric-fixable disagreement (Technology \& AI:
 rubric revision did not resolve (Career \& Self-Improvement: failed to
 converge despite two revisions, with its best rubric at 70.0\%). We
 initially attributed this to a pure model-capability limitation; the
-reasoning-before-label ablation, human validation study, and a direct
-judge-replacement test
-(Sections~\ref{sec:cotresults},~\ref{sec:humanval},~and~\ref{sec:judgereplacement})
-together indicate the ceiling is better understood as a shared misalignment
-between judge models and human annotators over what counts as
-``substantive'' career content, rather than purely a capability limit of
-the judge models in isolation---and that even directly recovering
-inter-judge agreement via judge replacement does not by itself recover
-human-judged correctness.
+reasoning-before-label ablation and human validation study
+(Sections~\ref{sec:cotresults}~and~\ref{sec:humanval}) suggest the ceiling
+may instead partly reflect a shared misalignment between judge models and
+human annotators over what counts as ``substantive'' career content, though
+we cannot fully separate this from a structural property of the panel
+itself: our judge-replacement test (Section~\ref{sec:judgereplacement})
+found the two static judges already agreed with each other on 90\% of this
+domain's transcripts, so no third judge could have changed the panel's
+majority-vote output on this set regardless of the ceiling's underlying
+cause.
 
-\item \textbf{Per-domain convergence with regression checking.} Domains
-converge independently; each iteration includes a regression check on
-previously converged domains to detect rubric drift. Supporting this loop
-are two quality-control components detailed in
+\item \textbf{Per-domain convergence.} Domains converge independently, each
+against its own rubric and disagreement history. Two supporting
+quality-control components are detailed in
 Sections~\ref{sec:judgeqc}--\ref{sec:columnar}: a discriminative-validity
 pre-screening gate that caught and removed a degenerate judge (Gemma~2~9B,
 zero discriminative outputs) before the reported run, and a columnar
 evaluation order that made repeated 60-transcript, 3-model passes tractable
-on consumer hardware.
+on consumer hardware. Each iteration also re-evaluates any domain that
+converged on the immediately preceding iteration, as a one-time check that
+its agreement rate holds on a second pass with the same rubric and judges
+(Section~\ref{sec:regressioncheck})---an output-stability check, not a
+cross-domain interference test, since coordinator calls are single-domain,
+stateless API requests with no mechanism for one domain's revision to
+affect another's.
 
 \item \textbf{A downstream case study.} The calibrated rubrics, applied by a
 separate frontier ensemble, produced labels that trained an SVM classifier
 achieving F1\,=\,0.871 and recall\,=\,0.964 on the HIGH-signal class
 (Section~\ref{sec:results}). We treat this as a usability case study, not an
-independent validation of label correctness: Section~\ref{sec:frontierhuman}
-shows the same frontier ensemble tracks human judgment about as loosely as
-the local calibration panel does.
+independent validation of the labels' agreement with the available human
+reference: Section~\ref{sec:frontierhuman} shows the same frontier
+ensemble tracks human judgment about as loosely as the local calibration
+panel does.
 
 \end{enumerate}
 
@@ -516,7 +544,7 @@ disagreements.
 These local models serve as the calibration instrument only; production labeling in the
 downstream application uses a separate, stronger frontier ensemble (companion paper).
 
-\textbf{Coordinator model.} Claude Sonnet (claude-sonnet-4-6), via API. The
+\textbf{Coordinator model.} Claude Sonnet (claude-sonnet-4-6)~\cite{anthropicClaudeSonnet46}, via API. The
 coordinator receives: (a)~the current rubric, (b)~per-model label assignments
 and criterion-level justification quotes for each disagreement case, and
 (c)~disagreement counts per criterion. It produces a structured JSON revision
@@ -540,6 +568,7 @@ All-agree rate (unanimous three-way agreement) is tracked separately as a
 stricter secondary metric.
 
 \subsection{Calibration Loop}
+\label{sec:calibrationloop}
 
 \textbf{Initialization.} Domain-specific rubrics $R_d^{(0)}$ are written at
 moderate abstraction---sufficient to convey intent but not yet precise enough
@@ -619,10 +648,34 @@ candidate pool); candidates were deduplicated against the existing
 evaluation set and filtered to 300--8000 words per transcript. Candidate
 selection prioritized a fixed allow-list of known channels per domain
 (established educational/technical channels expected to produce clear HIGH
-or MID signal) before falling back to general search results---a
+signal) before falling back to general search results---a
 deliberate design choice trading naturalistic diversity for more
 consistent signal quality, and a limitation on how representative the
-corpus is of YouTube educational content generally (see Limitations).
+corpus is of YouTube educational content generally (see Limitations). This
+allow-list bias plausibly contributes to the strong HIGH-signal skew
+reported below (\textbf{Corpus label distribution}): a channel allow-list
+built to surface clear HIGH-signal content is, by construction, unlikely
+to also surface a representative share of genuinely LOW-signal content, so
+the corpus is better described as a curated educational-content sample
+than as representative of YouTube educational content generally.
+
+\textbf{Corpus label distribution.} Both corpora are strongly HIGH-skewed
+at the majority-vote level. On the 60-transcript evaluation corpus (final
+calibrated labels), majority-vote HIGH rate is 100\% for General Education,
+60\% for Technology \& AI, and 90\% for Career \& Self-Improvement; the
+individual judges are more HIGH-skewed still (Llama~3.1~8B: 100\%, 85\%,
+100\% HIGH by domain; Mistral~7B: 100\%, 60\%, 90\%; Qwen~2.5~7B, the more
+LOW-leaning judge: 90\%, 30\%, 10\%). On the 90-transcript held-out corpus
+(final rubric), majority-vote HIGH rate is 100\% in every domain (Llama and
+Mistral predict HIGH on essentially every transcript in both corpora;
+Qwen~2.5~7B is again the only judge with substantial LOW-rate mass:
+3\%, 37\%, 63\% HIGH by domain under the final rubric). We report these
+figures because they bear directly on how several results in this paper
+should be read---most importantly Section~\ref{sec:judgereplacement}'s
+judge-replacement test, where Llama and Mistral's near-total mutual
+agreement on Career \& Self-Improvement leaves little room for a third
+judge to influence the panel's majority-vote output (Section~\ref{sec:judgereplacement}
+quantifies this directly).
 
 \textbf{Channel coverage.} The 60-transcript evaluation corpus spans 46
 unique channels (up to 5 transcripts from a single channel); the
@@ -658,7 +711,10 @@ reflects genuine convergence.
 
 \textbf{Runtime.} 17--20 minutes per iteration (columnar order). 170.7 minutes
 total; the run terminated at the maximum-iteration cap of 10 iterations.
-Consumer MacBook (Apple Silicon), CPU-only inference, no discrete GPU.
+Consumer MacBook (Apple Silicon), no discrete GPU; exact CPU/GPU offload
+configuration for the Ollama-served judge models was not recorded, and
+Ollama's default behavior on Apple Silicon is to use Metal GPU
+acceleration where available, so ``CPU-only'' should not be assumed.
 
 \textbf{Baseline.} CRUCIBLE's own domain-specific v0 rubrics are the
 calibration starting point (Table~\ref{tab:results}). The earlier,
@@ -677,7 +733,8 @@ figures below; see Appendix~\ref{app:baseline}.
 \centering
 \caption{Calibration results per domain.}
 \label{tab:results}
-\small
+\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccccccl}
 \toprule
 \textbf{Domain} &
@@ -723,12 +780,13 @@ agreement is inflated by label prevalence. The three domains separate cleanly un
 chance correction. Technology \& AI shows fair agreement ($\kappa = +0.25$, AC1 = $+0.286$)---the
 only domain where a rubric revision carried agreement to the convergence target. Career \&
 Self-Improvement shows below-chance agreement ($\kappa = -0.35$, AC1 = $-0.080$): the
-judges are systematically anti-correlated, the quantitative signature of the capability
-ceiling, since no rubric revision can raise agreement when one judge applies a criterion
-inconsistently with the other two. General Education shows $\kappa \approx 0$ despite 96.7\%
+judges are systematically anti-correlated relative to that metric's marginal-based chance
+expectation, which no rubric revision was able to change---consistent with, though not
+independent proof of, the capability-ceiling diagnosis discussed further in
+Section~\ref{sec:judgereplacement}. General Education shows $\kappa \approx 0$ despite 96.7\%
 raw agreement; this is the known prevalence paradox of $\kappa$ under skewed marginals~\cite{gwet2008} (the
-domain is roughly 97\% one class), and Gwet's AC1 = $+0.929$, which is robust to
-prevalence, indicates the agreement is genuine rather than chance-driven. The practical point
+domain is roughly 97\% one class), and Gwet's AC1 = $+0.929$ is less affected by the
+prevalence paradox under these marginals than raw agreement or Fleiss' $\kappa$. The practical point
 is that CRUCIBLE's contribution is not raising raw agreement per se---raw agreement is
 base-rate-dependent---but diagnosing which regime a domain occupies: rubric-fixable,
 capability-bounded, or prevalence-dominated.
@@ -849,14 +907,23 @@ not move. Qwen~2.5~7B is the only judge whose behavior shifts (Career:
 rate), and this shift is what drives the reported agreement improvement.
 This is Qwen's HIGH-rate converging toward the other two, effectively
 static, judges---not three-way convergence toward more nuanced shared
-judgment. Full per-judge prevalence and provenance detail are in
-Appendix~\ref{app:heldout}.
+judgment. Because Llama and Mistral already agree with each other on
+nearly every transcript in both domains, their majority vote is
+mechanically fixed regardless of Qwen's individual prediction: the
+revision shifted the dissenting judge's individual predictions but changed
+the ensemble's \emph{majority-vote annotation} on \textbf{0 of the 90}
+held-out transcripts (0 of 30 in each domain) between the v0 and final
+rubric. The weighted-agreement improvement reported above reflects Qwen's
+predictions moving closer to unanimity with an already-fixed majority, not
+a change in which label the panel actually output on any transcript. Full
+per-judge prevalence and provenance detail are in Appendix~\ref{app:heldout}.
 
 \subsection{Downstream Validation: SNR Classifier Performance}
 
 We report this as a downstream \emph{case study} in whether the calibrated
 labels are usable at scale, not as an independent validation of their
-correctness. The calibrated rubrics were used to drive labeling for a
+agreement with the available human reference. The calibrated rubrics were
+used to drive labeling for a
 lightweight SVM classifier on the SNR binary classification task. Real
 transcripts labeled using CRUCIBLE-calibrated rubrics (applied by a separate
 frontier ensemble, per the companion paper~\cite{dasSNR2026}) were combined
@@ -898,7 +965,8 @@ paper~\cite{dasSNR2026} (see footnote~1).
 on 389 transcripts: 89 real transcripts with silver labels assigned via the
 same calibrated-rubric ensemble methodology, combined with 300 synthetic
 transcripts (150 HIGH, 150 LOW, balanced across domains) generated from
-structured prompts with labels correct by construction. Evaluation uses a
+structured prompts with labels assigned by construction, intended to match
+the generating prompt's target class. Evaluation uses a
 disjoint, held-out set of 60 real transcripts---the same 60-transcript
 corpus used throughout this paper---selected and labeled prior to any
 classifier training. The 89 training-supplement transcripts and 300
@@ -912,8 +980,8 @@ pool from which the 89 are drawn), so this is document-held-out, not
 source-held-out. We note directly, per the concern motivating
 Section~\ref{sec:humanval}, that
 the evaluation labels are \emph{not} independent of the calibration process
-in the sense of external ground truth---they are assigned by the same class
-of frontier-ensemble judges used for the training supplement, applying the
+in the sense of an external human reference---they are assigned by the same
+class of frontier-ensemble judges used for the training supplement, applying the
 calibrated rubric. This is precisely the circularity Section~\ref{sec:humanval}
 is designed to address: human consensus and calibrated-panel labels agree
 at 90\% (General Education), 50\% (Technology \& AI), and 50\% (Career \&
@@ -934,9 +1002,9 @@ the specific transcripts here as the original draft of this paper did.
 \subsection{Human Validation}
 \label{sec:humanval}
 
-All three reviewers of an earlier version of this work raised the same
-concern: inter-judge agreement among LLM annotators may reflect shared
-model bias rather than label correctness, and without a human reference
+A known limitation of LLM-as-judge pipelines is that inter-judge agreement
+among automated annotators may reflect shared model bias rather than
+agreement with independent human judgment, and without a human reference
 point, convergence cannot be distinguished from consensus error. We
 address this directly with an independent human validation study.
 
@@ -1019,52 +1087,71 @@ supported by the \emph{pattern} across human-human and human-model agreement
 jointly, not by the point estimates in isolation, which alone are not
 statistically distinguishable at this sample size.
 
-These results support three distinct conclusions, one per domain:
+These results support three distinct conclusions, one per domain---with
+one important caveat throughout: each domain was validated by a distinct,
+non-overlapping set of three annotators (nine total, no annotator
+contributed to more than one domain), so domain effects and
+annotator-cohort effects cannot be fully separated with this design. Each
+conclusion below should be read as characterizing the outcome for that
+domain's specific three-person annotator group, which we cannot cleanly
+distinguish from a property of the domain's content itself; a design with
+overlapping or larger annotator pools per domain would be needed to
+separate these two sources of variance.
 
-\textbf{General Education: validated.} Human annotators agree with each
-other at a moderate-to-good level (AC1\,=\,0.63) and agree with CRUCIBLE's
-label 90\% of the time. This is consistent with this domain's fast, stable
+\textbf{General Education: this domain's annotator group validated
+CRUCIBLE's labels.} These annotators agree with each other at a
+moderate-to-good level (AC1\,=\,0.63) and agree with CRUCIBLE's label 90\%
+of the time. This is consistent with this domain's fast, stable
 convergence during calibration (Table~\ref{tab:results}: 96.7\% agreement,
-v0 rubric, no revisions) and provides direct evidence that convergence here
-reflects genuine label validity, not shared model artifact.
+v0 rubric, no revisions) and is consistent with convergence here
+reflecting genuine label validity, not shared model artifact, for this
+annotator group.
 
-\textbf{Technology \& AI: a genuine model failure, not domain ambiguity.}
-Human annotators agree with each other at the same rate as General
-Education (AC1\,=\,0.63)---the task itself is well-posed and humans can
-perform it consistently. Yet human consensus matches CRUCIBLE's label only
-50\% of the time. Because human-human agreement is high while
-human-CRUCIBLE agreement is low, this is not a case of an inherently
-ambiguous domain; it is direct evidence that CRUCIBLE's confident
+\textbf{Technology \& AI: this domain's annotator group's judgments
+diverged from CRUCIBLE despite agreeing with each other.} These annotators
+agree with each other at the same rate as General Education's annotators
+(AC1\,=\,0.63)---for this group, the task was well-posed and answerable
+consistently. Yet their consensus matches CRUCIBLE's label only 50\% of
+the time. Because human-human agreement is high while human-CRUCIBLE
+agreement is low, this is not consistent with an inherently ambiguous task
+for this annotator group; it is evidence that CRUCIBLE's confident
 convergence (81.7\% inter-judge agreement, crossing our calibration
-threshold) \emph{masked} a systematic divergence from human judgment. This
-is precisely the failure mode reviewers warned against: high automated
-agreement gave no signal that this domain's labels were less reliable than
-General Education's, despite the two domains being empirically
-indistinguishable by agreement metrics alone.
+threshold) \emph{masked} a systematic divergence from this group's
+judgment---a known failure mode in LLM-as-judge pipelines: high automated
+agreement gives no signal that labels are unreliable when the automated
+panel and the human reference diverge in a way agreement metrics alone
+cannot detect, and Technology \& AI's agreement statistics here are
+empirically indistinguishable from General Education's. These annotators
+were screened for English proficiency and Prolific approval rating, not
+for technical or AI/ML domain expertise, which may itself contribute to
+the divergence in ways we cannot separate from a genuine CRUCIBLE
+misalignment with this group's judgment.
 
-\textbf{Career \& Self-Improvement: domain ambiguity, not (only) model
-failure.} Human annotators themselves show markedly lower agreement
-(AC1\,=\,0.33) than in the other two domains. Since humans cannot
-consistently agree with each other on this domain, CRUCIBLE's own
-stagnation here (Table~\ref{tab:results}: 68.4\%--70.0\%, never crossing
-threshold) is at least partly attributable to genuine task difficulty
+\textbf{Career \& Self-Improvement: this domain's annotator group itself
+showed low agreement.} These annotators show markedly lower agreement with
+each other (AC1\,=\,0.33) than the other two groups. Since this group
+could not consistently agree among themselves, CRUCIBLE's own stagnation
+here (Table~\ref{tab:results}: 68.4\%--70.0\%, never crossing threshold)
+is at least partly attributable to genuine task difficulty for this group
 rather than model failure alone. This nuances---without fully
 resolving---our capability-ceiling diagnosis (Section~\ref{sec:cotresults}
 tests this directly): the ceiling may be substantially a property of the
-content itself, not solely the judge models.
+content itself as judged by this group, not solely the judge models.
 
 \subsubsection{Implications}
 
 These results require us to revise the framing of CRUCIBLE's central claim.
-Automated inter-judge convergence is \emph{necessary but not sufficient}
-evidence of label quality: it correctly identified General Education as
-reliable and correctly flagged Career \& Self-Improvement as difficult, but
-it failed to distinguish Technology \& AI's unreliable convergence from
-General Education's valid convergence, despite near-identical agreement
-statistics. We therefore do not claim CRUCIBLE eliminates the need for
-human oversight; we show instead that periodic, targeted human
-validation---at the scale used here, a small stratified sample per
-domain---is necessary to determine \emph{which} domains' automated
+Automated inter-judge convergence is \emph{not sufficient evidence of
+alignment with human judgment}: it correctly identified General
+Education's annotator group as reliable and correctly flagged Career \&
+Self-Improvement's as difficult, but it failed to distinguish Technology \&
+AI's unreliable convergence from General Education's valid convergence,
+despite near-identical agreement statistics. We therefore do not claim
+CRUCIBLE eliminates the need for human oversight; we show instead that
+periodic, targeted human validation---at the scale used here, a small
+stratified sample per domain---is advisable, and appears necessary before
+treating automated agreement alone as evidence of validity in settings
+similar to this one, to determine \emph{which} domains' automated
 convergence can be trusted, a determination the convergence metric alone
 cannot make.
 
@@ -1132,31 +1219,51 @@ exceeds 60\% agreement with human consensus, and the ensemble majority
 (56.7\%) is comparable to the local panel's own 63.3\% (Table~\ref{tab:humanval}).
 This is not a minor footnote-level caveat: it is direct evidence that the
 downstream classifier's F1\,=\,0.871 result (Section~\ref{sec:results}, reported
-there as a usability case study, not a correctness claim) rests on labels
-of similar human-alignment reliability to the ones scrutinized throughout
-this paper, not on some independently more trustworthy labeling process.
-Local-panel and frontier-ensemble labels agree with \emph{each other} more
-(66.7\%) than either agrees with humans---consistent with this paper's
-broader finding that automated agreement, even between differently-sourced
-judge ensembles, does not imply human-judged correctness.
+there as a usability case study, not a claim about agreement with the
+available human reference) rests on labels of similar human-alignment
+reliability to the ones scrutinized throughout this paper, not on some
+independently more trustworthy labeling process. Local-panel and
+frontier-ensemble labels agree with \emph{each other} more (66.7\%) than
+either agrees with humans---consistent with this paper's broader finding
+that automated agreement, even between differently-sourced judge
+ensembles, does not imply agreement with the available human reference.
+
+\textbf{Missing-label sensitivity check.} Gemini~2.5~Flash failed to
+return a valid label on 10 of the 30 human-validation items; these 10
+items are excluded from Gemini's own individual-agreement row in
+Table~\ref{tab:frontierhuman} only, and the ensemble-majority row above
+uses whichever 2 or 3 of the 3 judges returned a valid label on each
+item (majority requires only 2 of 3, so this is well-defined throughout).
+On the 10 items where Gemini's label is missing, the remaining two judges
+(GPT-4o mini and Llama~3.3~70B) agree with each other on 9 of 10 and
+disagree on 1 of 10, so Gemini's absence rarely leaves the majority
+ambiguous. As a direct check, restricting to the 20 items where all three
+frontier judges returned a valid label (dropping the 2-of-3 convenience
+entirely) gives frontier-majority-vs-human agreement of 55.0\% (Cohen's
+$\kappa=0.100$, Gwet's AC1\,$=0.120$)---close to the full-sample,
+2-of-3-robust figure of 56.7\% ($\kappa=0.133$, AC1\,$=0.178$) reported
+above, so the missing-label handling does not materially change the
+finding.
 
 \subsection{Rubric Portability Across Judge Models}
 \label{sec:portability}
 
-Reviewer feedback also asked why a single frontier model, applied
-zero-shot, would not suffice in place of the full calibration loop. We test
-this directly, and in doing so uncover a second finding: the calibrated
-rubric does not transfer cleanly to a judge model different from the one it
-was calibrated on.
+A natural question is why a single frontier model, applied zero-shot,
+would not suffice in place of the full calibration loop. We test this
+directly, and in doing so uncover a second finding: the calibrated rubric
+does not transfer cleanly to a judge model different from the one it was
+calibrated on.
 
 \subsubsection{Frontier Baseline Design}
 
 We compare three approaches against the same 30-transcript human ground
 truth used in Section~\ref{sec:humanval}: (1)~the local three-judge panel
 applying its calibrated rubric (the system described in this paper);
-(2)~GPT-5.6~Sol (OpenAI, released July 2026) applying a naive zero-shot
-prompt with no rubric; and (3)~GPT-5.6~Sol applying the same calibrated
-rubric used by the local panel. We use a non-Anthropic model for this
+(2)~GPT-5.6~Sol~\cite{openaiGPT56Sol} (OpenAI, general availability July 9, 2026) applying a
+naive zero-shot prompt with no rubric; and (3)~GPT-5.6~Sol applying the
+same calibrated rubric used by the local panel. All GPT-5.6~Sol calls for
+this experiment were made on July 19, 2026, ten days after general
+availability. We use a non-Anthropic model for this
 baseline because Claude serves exclusively as the calibration coordinator
 throughout this work and was not evaluated as a judge, to avoid conflating
 baseline performance with the model family responsible for rubric design.
@@ -1198,7 +1305,7 @@ rises from 0.500 to 0.633 when the rubric is added). Taken together, this
 indicates the calibrated rubric teaches a frontier judge to mimic the local
 ensemble's particular behavior pattern---including the local ensemble's
 specific errors---rather than making the frontier judge more accurate
-against ground truth. The rubric appears co-adapted to the specific quirks
+against the available human reference. The rubric appears co-adapted to the specific quirks
 of the local judge ensemble it was calibrated on (Section~\ref{sec:results},
 which documents Qwen~2.5~7B's specific misreadings that motivated each
 revision), and this adaptation does not generalize to a different judge
@@ -1207,14 +1314,14 @@ model.
 We verified this baseline is not a single-draw artifact: repeating both the
 no-rubric and rubric-prompted GPT-5.6~Sol calls five times per transcript
 (600 total calls) shows 87--93\% of transcripts receive an identical label
-across all five draws, and the majority-of-five accuracy against human
-ground truth matches the original single-draw result exactly for both
-variants.
+across all five draws, and the majority-of-five accuracy against the
+available human reference matches the original single-draw result exactly
+for both variants.
 
 \subsubsection{Reasoning-Before-Label Ablation}
 \label{sec:cotresults}
 
-Motivated by an independent-reviewer question of whether Career \&
+Motivated by the question of whether Career \&
 Self-Improvement's stagnation (Table~\ref{tab:results}) reflects a
 single-pass prompting limitation rather than a true model capability
 ceiling, we added an intermediate reasoning step to the local judges'
@@ -1230,14 +1337,14 @@ label in response to an instruction to reason first.
 \begin{table}[ht]
 \centering
 \caption{Reasoning-before-label ablation across all three domains:
-inter-judge weighted agreement and accuracy against human ground truth,
-without vs.\ with the reasoning step.}
+inter-judge weighted agreement and accuracy against the available human
+reference, without vs.\ with the reasoning step.}
 \label{tab:cot}
 \small
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Domain} & \textbf{Inter-judge (No reasoning)} & \textbf{Inter-judge (Reasoning)}
-& \textbf{vs.\ Human (No reasoning)} & \textbf{vs.\ Human (Reasoning)} \\
+& \multicolumn{2}{c}{\textbf{Inter-judge $A$}} & \multicolumn{2}{c}{\textbf{vs.\ Human}} \\
+\textbf{Domain} & \textbf{No reasoning} & \textbf{Reasoning} & \textbf{No reasoning} & \textbf{Reasoning} \\
 \midrule
 Career \& Self-Impr. & 0.684 & \textbf{0.767} & 0.500 & \textbf{0.400} \\
 Technology \& AI     & 0.817 & \textbf{0.933} & 0.500 & 0.500 \\
@@ -1335,7 +1442,7 @@ as a sensitivity finding, not a controlled ablation result.
 
 These findings---rubric non-transfer across judge models, a
 reasoning-before-label step increasing agreement without increasing
-correctness, the frontier ensemble tracking human judgment about as
+agreement with the available human reference, the frontier ensemble tracking human judgment about as
 loosely as the local panel (Section~\ref{sec:frontierhuman}), and the
 Section~\ref{sec:humanval} finding that Technology \& AI's confident
 convergence masked a divergence from human judgment---share a common
@@ -1371,7 +1478,7 @@ a stage's output could, in principle, have fed back into rubric or system
 design. Only the first two stages could; every analysis from human
 validation onward was run against the frozen system and rubrics.}
 \label{tab:chronology}
-\small
+\footnotesize
 \begin{tabular}{lll}
 \toprule
 \textbf{Stage} & \textbf{Data used} & \textbf{Could influence design?} \\
@@ -1410,14 +1517,17 @@ replaces.
 
 The Career \& Self-Improvement ceiling---a best of 70.0\%, short of
 convergence---shows that a class of disagreement exists that rubric revision did not fix under
-this judge and prompt setup: disagreement caused by
-a model's inability to track co-occurrence patterns across long documents.
-Without the CRUCIBLE diagnostic loop, an operator seeing 70.0\% would not
-know whether to keep revising or replace the judge. The stagnation pattern plus
-the coordinator's consistent diagnosis across both revision attempts provides a
-principled answer: the rubric is not the limiting factor. The appropriate
-intervention is judge replacement or ensemble augmentation, not further
-revision. Section~\ref{sec:judgereplacement} tests this prescription directly.
+this judge and prompt setup. Without the CRUCIBLE diagnostic loop, an
+operator seeing 70.0\% would not know whether to keep revising or replace
+the judge. The stagnation pattern plus the coordinator's consistent
+diagnosis across both revision attempts---attributing it to a model-level
+inability to track co-occurrence patterns across long documents---suggested
+the rubric was not the limiting factor. The natural prescription is judge
+replacement or ensemble augmentation, not further revision;
+Section~\ref{sec:judgereplacement} tests this directly, though as that
+section shows in detail, the specific test we were able to run cannot
+fully distinguish a genuine judge-level capability limitation from a
+structural property of this particular three-judge panel.
 
 \subsection{Judge Replacement: A Direct Test}
 \label{sec:judgereplacement}
@@ -1441,10 +1551,10 @@ used to score it below, which we specifically avoided.
 \caption{Judge replacement on Career \& Self-Improvement (n\,=\,20 for
 inter-judge agreement; n\,=\,10 for human alignment).}
 \label{tab:judgereplacement}
-\small
+\footnotesize
 \begin{tabular}{lccc}
 \toprule
-\textbf{Panel} & \textbf{Inter-judge $A$} & \textbf{vs.\ Human Agreement} & \textbf{vs.\ Human ($\kappa$ / AC1)} \\
+\textbf{Panel} & \textbf{Inter-judge $A$} & \textbf{vs.\ Human} & \textbf{vs.\ Human ($\kappa$ / AC1)} \\
 \midrule
 Original (Llama, Mistral, Qwen)     & 0.700 & 50.0\% & 0.138 / 0.083 \\
 Replacement (Llama, Mistral, Granite) & \textbf{0.883} & 50.0\% & 0.138 / 0.083 \\
@@ -1457,21 +1567,56 @@ substantially, from 0.700 to 0.883. Accuracy against the 10 human-labeled
 Career transcripts is \emph{bit-for-bit identical} before and after: the
 replacement panel's majority-vote label matches the original panel's on
 every one of the 10 items, so agreement, Cohen's $\kappa$, and Gwet's AC1
-against human judgment are unchanged to three decimal places. This is the
-most direct evidence in this paper for its central claim: the specific
-remedy this paper's own diagnostic framework prescribes for a
-capability-bounded domain resolves the inter-judge agreement symptom
-completely, while leaving human-judged correctness completely untouched.
-The label prevalence underlying this is informative too: both panels
-produce the same distribution of HIGH/LOW calls at the majority-vote level
-on this subset, which is consistent with the two panels reaching the same
-place by different within-panel routes rather than the replacement judge
-correcting Qwen's specific misreadings.
+against human judgment are unchanged to three decimal places.
 
-We read this cautiously in one respect: it is a single replacement-model
-trial on one domain, and does not by itself establish that judge
+\textbf{Why: a mechanical check on the full 20-transcript set.} We looked
+more closely at why, using the full 20-transcript Career set (not just the
+10 with human labels), and found this dissociation is mechanically
+guaranteed rather than an independently interesting empirical outcome.
+Llama~3.1~8B and Mistral~7B---the two judges held fixed across both
+panels---already agree with each other on 18 of the 20 (90\%) Career
+transcripts (Llama predicts HIGH on 20/20, Mistral on 18/20); on those 18,
+the majority-vote label is determined entirely by Llama and Mistral,
+regardless of what the third judge outputs. On the remaining 2
+transcripts (Llama\,=\,HIGH, Mistral\,=\,LOW), both the original judge
+(Qwen~2.5~7B, 10\% HIGH rate on this domain) and the replacement
+(granite3.1-dense, 65\% HIGH rate) happened to vote LOW, so the majority
+stayed LOW under both panels there too. The result: the majority-vote
+label changed on \textbf{0 of the 20} Career transcripts between the
+original and replacement panel. The inter-judge agreement metric moved
+(0.700\,$\to$\,0.883) because granite3.1-dense agrees with the
+Llama+Mistral majority far more often than Qwen did (65\% vs.\ 10\% HIGH
+rate), converting many 2-1 splits into 3-0 unanimity---not because the
+panel's actual output changed on any transcript.
+
+This means the finding is narrower than the table alone suggests: what we
+have directly demonstrated is that judge replacement changed whether the
+panel was unanimous or split, not what the panel's actual annotations
+were, and by construction the annotations \emph{could not} have changed on
+this particular panel composition. This result is \emph{consistent
+with}---but does not independently establish---this paper's broader claim
+that fixing inter-judge agreement does not fix agreement with human
+judgment: the majority-vote label here was mechanically unchangeable by
+any third judge given how strongly the other two already agreed, so the
+null result on human alignment cannot be attributed with confidence to
+\emph{correcting} a genuine capability gap versus simply \emph{being
+unable to move} the panel's output at all. The label prevalence underlying
+this is informative too: both panels produce the same distribution of
+HIGH/LOW calls at the majority-vote level on this subset, which is
+consistent with the two panels reaching the same place by different
+within-panel routes rather than the replacement judge correcting Qwen's
+specific misreadings---though, per the analysis above, ``reaching the same
+place'' was close to inevitable given the fixed pair's own agreement rate.
+
+We read this cautiously in two respects: it is a single replacement-model
+trial on one domain (see Limitations), and, as detailed above, the extent
+to which any third judge could have influenced the majority-vote outcome
+at all is itself limited on this panel. This experiment is better read as
+evidence that judge replacement can convert a split panel into a unanimous
+one without changing its output, rather than as a demonstration that judge
 replacement is a general recovery strategy for capability-bounded
-disagreement (see Limitations).
+disagreement (see Limitations for a fuller discussion of this
+constraint).
 
 \subsection{Degenerate Judge Detection}
 
@@ -1481,22 +1626,25 @@ We treat discriminative validity as a pre-screening gate: no model enters
 a judge panel without demonstrating a non-degenerate label distribution across
 a diagnostic sample.
 
-\subsection{Regression Checking}
+\subsection{Output-Stability Recheck for Converged Domains}
+\label{sec:regressioncheck}
 
-Rubric revisions targeting one domain can affect the coordinator's framing in
-ways that influence other domains, even though each domain's rubric is
-nominally independent and coordinator calls are stateless. Concretely, the
-coordinator prompt (Section~\ref{sec:judgeqc}) reuses the same instruction
-template and few-shot framing across domains, and a frontier API model is
-not bit-reproducible across calls (Limitations); a revision's specific
-phrasing in one domain's prompt could plausibly prime similar phrasing
-choices when the coordinator is later asked to revise a different domain's
-rubric, even with no explicit cross-domain memory. We have no evidence this
-occurred in the run reported here---no regression was observed, and we did
-not design an experiment capable of detecting a subtle priming effect if
-one existed. The regression check is therefore best understood as a
-safeguard against a theoretical risk inherent to reusing one coordinator
-across domains, not a mechanism validated against an observed failure.
+Once a domain converges, we re-evaluate it with the same rubric and the
+same three judge models on the iteration immediately following convergence,
+checking whether the weighted agreement rate holds. Each coordinator call
+is a fresh, stateless API request scoped to a single domain (it receives
+only that domain's rubric, disagreement cases, and revision history; no
+information about other domains' prompts, revisions, or outputs is ever
+included), so this check is not, and cannot be, a defense against one
+domain's revision ``priming'' the coordinator's phrasing on another domain
+via shared state---no such state exists in this implementation. What it
+does test is judge-level output stability: whether the same rubric applied
+to the same transcripts by the same three models reproduces the same
+agreement rate on a second pass, since a frontier API coordinator's own
+non-determinism (Limitations) is a property of the coordinator, not the
+judges, but serving-side variance in the local judge models is not fully
+ruled out either. No regression (agreement drop $>10$ percentage points)
+was observed in the run reported here across any of the domains checked.
 
 % ── 7. Limitations ───────────────────────────────────────────────────────
 \section{Limitations}
@@ -1520,10 +1668,27 @@ inter-judge agreement substantially (0.700\,$\to$\,0.883) while leaving
 accuracy against the 10 human-labeled transcripts completely unchanged.
 This is a single replacement-model trial on a single domain, with only one
 candidate model attempted; it does not establish that judge replacement is
-a general recovery strategy, only that in this one instance it recovered
-the agreement symptom without recovering human-judged correctness---itself
-informative, but not grounds for a general claim about judge-replacement
-efficacy.
+a general recovery strategy.
+
+\textbf{Judge replacement's strength depends on how much the third judge
+could actually influence the outcome.} As Section~\ref{sec:judgereplacement}
+details, the two retained judges (Llama, Mistral) already agreed with each
+other on 90\% of this domain's 20 transcripts, and on the remaining 2 both
+candidate third judges happened to vote the same way; the majority-vote
+label therefore changed on 0 of 20 transcripts between the original and
+replacement panel. This means the experiment, as run, could only ever have
+shown a dissociation between inter-judge agreement and human alignment on
+this domain---it was structurally incapable of showing the opposite,
+because the panel's output could not move. A domain or panel where the two
+retained judges disagree with each other more often (so the third judge's
+identity genuinely determines more majority votes) would be a stronger,
+more informative test of whether judge replacement recovers human
+alignment along with inter-judge agreement; we did not have such a case
+available in this run's data. Readers should weight this result
+accordingly: it demonstrates a real property of the diagnostic loop
+(replacement resolved the agreement symptom) but the null result on human
+alignment is consistent with, rather than independent confirmation of,
+this paper's broader claim.
 
 \textbf{Silver labels.} Calibrated labels retain the biases of the three judge
 models. Section~\ref{sec:humanval}'s human validation study addresses part of
@@ -1536,8 +1701,9 @@ adjudication of remaining disagreements at greater scale is recommended.
 
 \textbf{Synthetic data in classifier training.} Of the 389 transcripts used
 to train the downstream SVM classifier (Section~\ref{sec:results}), 300
-(77\%) are synthetically generated with labels correct by construction,
-rather than assigned by the calibrated-rubric ensemble. The reported
+(77\%) are synthetically generated with labels assigned by construction,
+intended to match the generating prompt's target class, rather than
+assigned by the calibrated-rubric ensemble. The reported
 F1\,=\,0.871 may therefore partly reflect the classifier separating
 synthetic-generation artifacts from real transcripts, rather than purely
 the quality of the calibrated real-transcript labels. A real-transcript-only
@@ -1547,20 +1713,26 @@ attributable to the calibrated labels specifically.
 \textbf{Coordinator dependency.} Revision quality depends on the coordinator
 model. A weaker coordinator may misdiagnose disagreement or introduce new
 ambiguities. Retry logic mitigates transient failures but not systematic ones.
-Because the coordinator is a frontier API model and is not bit-reproducible across runs, the
-exact per-domain ceiling can vary by one to two points between runs; the qualitative findings
-(the capability ceiling, degenerate-judge detection, and the three agreement regimes) are robust
-to this variation.
+Because the coordinator is a frontier API model and is not bit-reproducible across runs, we
+expect the exact per-domain ceiling to vary by roughly one to two points between runs, based on
+typical run-to-run variance for this kind of model; we have not verified this band empirically,
+since, as noted immediately below, only a single calibration run was performed. We accordingly
+do \emph{not} claim the qualitative findings (the capability ceiling, degenerate-judge detection,
+and the three agreement regimes) are empirically robust to run-to-run variation---only that they
+are unlikely to be artifacts of a single anomalous coordinator call, given that each rests on a
+consistent diagnosis repeated across multiple iterations within the one run we did perform.
 
 \textbf{Single calibration run.} The reported convergence trajectory
 (Table~\ref{tab:trajectory}) reflects a single run of a non-deterministic
-coordinator. In particular, Career \& Self-Improvement's iteration-2 gain
-(68.4\%\,$\to$\,70.0\%, 1.6 points) falls within the $\pm$1--2 point
-run-to-run variance band we ourselves report above; that specific
+coordinator, and no repeated-run robustness check was performed. In particular, Career \& Self-Improvement's iteration-2 gain
+(68.4\%\,$\to$\,70.0\%, 1.6 points) falls within the estimated $\pm$1--2 point
+run-to-run variance band described above; that specific
 incremental result should therefore be read cautiously as a possible
 artifact of coordinator noise rather than confirmed as a genuine
 improvement from the rubric revision. Repeated runs would be needed to
-establish it as signal rather than noise.
+establish it as signal rather than noise, and more generally to establish
+empirically (rather than argue plausibly) that this paper's qualitative
+findings are robust to coordinator variation.
 
 \textbf{No baseline comparison, partially addressed.} We did not benchmark
 CRUCIBLE against manual rubric revision or simple self-refinement; these
@@ -1589,7 +1761,7 @@ coordinator's specific diagnosis matters. This remains future work.
 
 \textbf{Small human-validation sample.} Our human validation
 (Section~\ref{sec:humanval}) uses $n=10$ real transcripts per domain, plus
-one attention check, following the scale suggested in prior review as
+one attention check, a scale chosen as a practical minimum
 sufficient for this purpose. With $n=10$ per domain, the percentile
 bootstrap intervals in Table~\ref{tab:humanval} may not fully capture the
 true sampling uncertainty and should be read as indicative rather than
@@ -1624,18 +1796,23 @@ validity of the rubric's criteria themselves and is scoped as future work.
 
 \textbf{Held-out generalization is narrower than it may sound.}
 Section~\ref{sec:heldout}'s positive result generalizes the rubric
-revision's effect on \emph{inter-judge agreement}, not on human-judged
-correctness (no human labels exist for that 90-transcript corpus), and the
-``unseen-to-coordinator'' claim rests on documented project workflow, not a
-logged, timestamped audit trail ruling out the corpus's exposure during
-development. The two corpora also share 6 channels (Section~\ref{sec:experimentalsetup}),
-so this is document-held-out, not source-held-out. Most materially, the
-effect is driven disproportionately by one judge (Qwen~2.5~7B) shifting
-its label distribution toward the other two, largely static, judges---not
-by uniform three-way convergence toward more nuanced shared judgment---so
-the generalization result should not be read as evidence the calibrated
-rubric produces more broadly reliable judgment on unseen data, only that
-it reliably shifts this specific judge's behavior in this direction.
+revision's effect on \emph{inter-judge agreement}, not on agreement with a
+human reference (no human labels exist for that 90-transcript corpus), and
+the ``unseen-to-coordinator'' claim rests on documented project workflow,
+not a logged, timestamped audit trail ruling out the corpus's exposure
+during development. The two corpora also share 6 channels
+(Section~\ref{sec:experimentalsetup}), so this is document-held-out, not
+source-held-out. Most materially, the effect is driven disproportionately
+by one judge (Qwen~2.5~7B) shifting its label distribution toward the
+other two, largely static, judges---not by uniform three-way convergence
+toward more nuanced shared judgment---and the underlying majority-vote
+annotation changes on \textbf{0 of the 90} held-out transcripts between
+the v0 and final rubric (Section~\ref{sec:heldout}), so the generalization
+result should not be read as evidence the calibrated rubric produces more
+broadly reliable judgment on unseen data, or that it changes any actual
+output label on this set, only that it reliably shifts one judge's
+individual predictions in a direction that happens not to move the
+already-fixed majority.
 
 \textbf{Frontier baseline sampling.} GPT-5.6~Sol does not expose temperature
 control; our stability check (Section~\ref{sec:portability}) characterizes
@@ -1646,8 +1823,9 @@ from serving-side non-determinism.
 \textbf{Reasoning-before-label scope.} The reasoning-before-label ablation
 (Section~\ref{sec:cotresults}) uses a single, untuned prompt design tested
 across all three domains but not across alternative formulations; whether
-more carefully engineered reasoning prompts alter the
-agreement-without-correctness pattern is untested.
+more carefully engineered reasoning prompts alter the pattern of raised
+inter-judge agreement without raised agreement with the human reference is
+untested.
 
 \textbf{Shared evaluation reference.} The human validation, frontier-vs-human
 comparison, rubric-portability, reasoning-before-label, and the
@@ -1710,13 +1888,24 @@ evaluation, judge replacement, and revision-sensitivity analysis) involve
 no human subjects and use publicly available or synthetically generated
 transcript data.
 
+\textbf{Use of generative AI.} Generative AI tools were used in this work
+for code generation and debugging of the experimental pipeline, and for
+writing refinement and editorial revision of the manuscript. All
+experimental design decisions, result interpretation, and scientific
+claims are the author's own; all reported numbers derive from the
+released code and data, and the author reviewed and takes full
+responsibility for the final content.
+
 % ── 8. Conclusion ─────────────────────────────────────────────────────────
 \section{Conclusion}
 
 \looseness=-1
 CRUCIBLE demonstrates that annotation rubric calibration can be automated, after an initial rubric draft,
 through a coordinator-mediated iterative loop driven by inter-judge
-agreement signal, with no human in the loop after initialization. The
+agreement signal, with no human reference labels used during optimization
+and no human in the loop after initialization (every retention, rollback,
+irreducibility-flagging, and stopping decision in the loop is programmatic;
+see Section~\ref{sec:calibrationloop}). The
 system was built to solve a concrete problem---an earlier, differently-scoped
 pilot showed inconsistent, largely-uncalibrated judge disagreement
 (Introduction, Appendix~\ref{app:baseline})---and raw weighted agreement
@@ -1724,13 +1913,20 @@ using the local calibration panel reached 81.7\%--96.7\% on two domains,
 though chance-corrected agreement shows the genuine gain concentrates in
 Technology \& AI. This paper's central finding, however, is not that
 number: it is that raising or achieving inter-judge agreement is not the
-same as achieving human-judged correctness, demonstrated five ways
+same as achieving agreement with human judgment, demonstrated five ways
 (Sections~\ref{sec:humanval},~\ref{sec:frontierhuman},~\ref{sec:portability},~\ref{sec:cotresults},
 and~\ref{sec:judgereplacement})---most directly by judge replacement, which
 raised inter-judge agreement from 0.700 to 0.883 while leaving human
-agreement bit-for-bit unchanged. The framework's durable value is its
-diagnosis of disagreement structure, a held-out check that this diagnosis's
-effect on agreement generalizes past the calibration corpus
+agreement bit-for-bit unchanged. As Section~\ref{sec:judgereplacement}
+details, that specific result is narrower than it first appears: the two
+retained judges already agreed with each other on 90\% of the domain's
+transcripts, so the panel's majority-vote output was mechanically
+unchangeable by any third judge, and the null result on human alignment is
+consistent with, rather than independent proof of, the broader claim. The
+framework's durable value is its diagnosis of disagreement structure, a
+check that this diagnosis's effect on the inter-judge \emph{agreement
+metric} generalizes past the calibration corpus even though the underlying
+majority-vote annotations do not change on the held-out set
 (Section~\ref{sec:heldout}), and the downstream classifier case study
 (F1\,=\,0.871) the calibrated rubrics enabled.
 
@@ -1738,16 +1934,22 @@ effect on agreement generalizes past the calibration corpus
 Beyond the specific numbers, CRUCIBLE surfaces one finding with broader
 implications: the capability ceiling, and its limits. Stagnation under
 coordinator-mediated revision is a diagnostic---it identifies that the
-limiting factor is plausibly a judge's model-level capability rather than
-rubric underspecification, and motivates judge replacement over further
-revision. Section~\ref{sec:judgereplacement} tests this prescription
-directly and shows it resolves the agreement symptom completely without
-resolving human-judged correctness at all, on the one domain and one
-replacement model tested---a result that sharpens rather than closes the
-diagnostic question. On a practical note, the columnar evaluation order
-(batching all transcripts per model before switching) reduced
-per-iteration model-load events from 180 to 3, making a full 10-iteration
-run tractable on consumer hardware with no discrete GPU.
+limiting factor is plausibly related to a judge's model-level capability
+rather than rubric underspecification, though our judge-replacement test
+cannot cleanly separate a genuine capability limitation from a structural
+property of a panel where two judges already agree most of the time, and
+motivates judge replacement or ensemble augmentation as directions worth
+testing over further revision. Section~\ref{sec:judgereplacement} tests
+judge replacement directly and shows it resolves the agreement symptom
+completely without changing the panel's output at all, on the one domain
+and one replacement model tested, and by construction could not have
+changed the output on this specific panel---a result that sharpens rather
+than closes the diagnostic question. On a practical note, the columnar
+evaluation order (batching all transcripts per model before switching)
+reduced per-iteration model-load events from 180 to 3, making a full
+10-iteration run tractable on an Apple Silicon MacBook with no discrete
+GPU (exact CPU/GPU offload configuration for the Ollama-served models was
+not recorded).
 
 Code, calibration logs, versioned rubrics, and calibrated labels are publicly
 available at \url{https://github.com/biditdas18/rubric-calibration-agent}.
@@ -1879,6 +2081,22 @@ S.~Palan and C.~Schitter.
 \newblock \emph{Journal of Behavioral and Experimental Finance},
 17:22--27, 2018.
 
+\bibitem{anthropicClaudeSonnet46}
+Anthropic.
+\newblock Claude Sonnet 4.6 model documentation.
+\newblock Anthropic, 2026. Coordinator model used throughout this paper's
+calibration loop; official model page current as of the July 2026 access
+dates reported in this paper.
+
+\bibitem{openaiGPT56Sol}
+OpenAI.
+\newblock GPT-5.6 Sol model documentation.
+\newblock OpenAI, 2026. General availability July 9, 2026; used as a
+non-Anthropic frontier baseline judge (Section~\ref{sec:portability}) and
+as a substitute coordinator in the revision-sensitivity analysis
+(Section~\ref{sec:revisionsensitivity}), both accessed after general
+availability as reported in-text.
+
 \bibitem{dasSNR2026}
 B.~Das.
 \newblock Signal-to-Noise Ratio Detection in Educational Video Content: A
@@ -1991,7 +2209,8 @@ operations by column (model) rather than by row (transcript):
 This reduces model-load events from 180 to 3 total per iteration. Each
 model loads once and remains resident in memory for its full 60-transcript
 pass. Result: each iteration completed in 17--20 minutes on a consumer
-MacBook (Apple Silicon, CPU-only inference, no discrete GPU), making a
+MacBook (Apple Silicon, no discrete GPU; exact CPU/GPU offload
+configuration not recorded), making a
 10-iteration calibration run (170.7 minutes total; the run terminated at
 the maximum-iteration cap of 10 iterations) fully tractable.
 
@@ -2091,8 +2310,8 @@ four possible 3-of-4 annotator-response subsets exactly matches the
 recorded consensus multiset on all 10 non-attention-check items identifies
 the rejected annotator unambiguously (10/10 exact match for one subset;
 6--7/10 for every other), independently confirmed against the Prolific
-dashboard's Rejected tab (single rejected participant, matching ID
-\texttt{TECHAI_A1}, completion time 39:06 against this
+dashboard's Rejected tab (single rejected participant, matching the
+rejected submission's internal record; completion time 39:06 against this
 batch's 140:00 median).
 
 Recomputing this domain's human consensus with the rejected annotator's
@@ -2115,10 +2334,10 @@ this corpus by verified positional alignment. Bootstrap intervals below use
 than the transcript level.
 
 \begin{center}
-\small
+\footnotesize
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Domain} & \textbf{\# channels (of 10)} & \textbf{Point} & \textbf{Transcript-CI} & \textbf{Channel-CI} \\
+\textbf{Domain} & \textbf{\# channels} & \textbf{Point} & \textbf{Transcript-CI} & \textbf{Channel-CI} \\
 \midrule
 Career \& Self-Impr.  & 10 & 50.0\% & [20.0\%, 80.0\%]  & [20.0\%, 80.0\%] \\
 General Education     &  9 & 90.0\% & [70.0\%, 100.0\%] & [66.7\%, 100.0\%] \\
