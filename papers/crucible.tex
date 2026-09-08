@@ -283,8 +283,7 @@ while agreement with the available human reference is not.
 \item \textbf{An automated rubric calibration loop} with coordinator-mediated
 disagreement diagnosis and targeted revision. Unlike prior rubric-generation and refinement systems, which are validated against
 reference judgments or accuracy signals, CRUCIBLE studies a narrower setting: iterative
-rubric revision driven solely by inter-judge disagreement, with no human reference labels at
-any stage.
+rubric revision driven solely by inter-judge disagreement, with no human reference labels used during calibration.
 
 \item \textbf{A held-out generalization check.} Re-scoring both the initial
 and final calibrated rubrics on a 90-transcript corpus never shown to the
@@ -367,8 +366,7 @@ rubric-refinement work that does iterate does so against human-labeled reference
 data~\cite{patch2025rubric}. Our narrower claim relative to this body of
 work is not that automated rubric revision itself is unaddressed in
 general, but that we revise domain-specific annotation rubrics using
-cross-model disagreement as the sole feedback signal, with no human
-reference labels at any stage, while explicitly investigating when that
+cross-model disagreement as the sole feedback signal, with no human reference labels used during calibration, while explicitly investigating when that
 signal produces panel-specific consensus rather than alignment with human
 judgment (Sections~\ref{sec:humanval}--\ref{sec:cotresults}) --- a question
 the reference-judgment-validated systems above are not positioned to ask,
