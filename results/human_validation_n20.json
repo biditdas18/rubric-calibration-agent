@@ -1,0 +1,268 @@
+{
+  "n_transcripts": 60,
+  "n_annotators": 18,
+  "design": "20 transcripts per domain; two rounds of 10 with disjoint cohorts of 3 annotators each; round 1 = even global indices, round 2 = odd.",
+  "metric_floor": {
+    "floor": 0.6667,
+    "tau": 0.8,
+    "required_unanimous_of_20": 8,
+    "note": "tau is satisfied at 40% unanimity, so the loop halts while 60% of items still carry judge disagreement."
+  },
+  "per_cell": [
+    {
+      "domain": "general_education",
+      "round": 1,
+      "n": 10,
+      "unanimous": 6,
+      "weighted_A": 0.8667,
+      "gwet_ac1": 0.6308,
+      "match": 9,
+      "match_rate": 0.9,
+      "majority_class_baseline": 1.0,
+      "beats_baseline": false,
+      "human_majority_HIGH": 9,
+      "system_HIGH": 10
+    },
+    {
+      "domain": "general_education",
+      "round": 2,
+      "n": 10,
+      "unanimous": 7,
+      "weighted_A": 0.9,
+      "gwet_ac1": 0.7561,
+      "match": 10,
+      "match_rate": 1.0,
+      "majority_class_baseline": 1.0,
+      "beats_baseline": false,
+      "human_majority_HIGH": 10,
+      "system_HIGH": 10
+    },
+    {
+      "domain": "tech_ai",
+      "round": 1,
+      "n": 10,
+      "unanimous": 6,
+      "weighted_A": 0.8667,
+      "gwet_ac1": 0.6308,
+      "match": 5,
+      "match_rate": 0.5,
+      "majority_class_baseline": 0.6,
+      "beats_baseline": false,
+      "human_majority_HIGH": 9,
+      "system_HIGH": 6
+    },
+    {
+      "domain": "tech_ai",
+      "round": 2,
+      "n": 10,
+      "unanimous": 2,
+      "weighted_A": 0.7333,
+      "gwet_ac1": -0.0256,
+      "match": 8,
+      "match_rate": 0.8,
+      "majority_class_baseline": 0.6,
+      "beats_baseline": true,
+      "human_majority_HIGH": 6,
+      "system_HIGH": 6
+    },
+    {
+      "domain": "career_selfimprovement",
+      "round": 1,
+      "n": 10,
+      "unanimous": 5,
+      "weighted_A": 0.8333,
+      "gwet_ac1": 0.3333,
+      "match": 5,
+      "match_rate": 0.5,
+      "majority_class_baseline": 0.9,
+      "beats_baseline": false,
+      "human_majority_HIGH": 4,
+      "system_HIGH": 9
+    },
+    {
+      "domain": "career_selfimprovement",
+      "round": 2,
+      "n": 10,
+      "unanimous": 3,
+      "weighted_A": 0.7667,
+      "gwet_ac1": 0.2336,
+      "match": 8,
+      "match_rate": 0.8,
+      "majority_class_baseline": 0.9,
+      "beats_baseline": false,
+      "human_majority_HIGH": 9,
+      "system_HIGH": 9
+    }
+  ],
+  "cells_beating_own_baseline": 1,
+  "pooled_match": 45,
+  "pooled_match_rate": 0.75,
+  "pooled_majority_class_baseline": 0.8333,
+  "reliability": [
+    {
+      "domain": "general_education",
+      "human_n_items": 20,
+      "human_ac1_pooled": 0.6965,
+      "human_ac1_ci95": [
+        0.4291,
+        0.8895
+      ],
+      "human_boot_draws": 9998,
+      "judge_n_items": 20,
+      "judge_unanimous": "18/20",
+      "judge_weighted_A": 0.9667,
+      "judge_ac1": 0.9287,
+      "judge_ac1_ci95": [
+        0.8033,
+        0.9655
+      ],
+      "judge_boot_draws": 8761
+    },
+    {
+      "domain": "tech_ai",
+      "human_n_items": 20,
+      "human_ac1_pooled": 0.3265,
+      "human_ac1_ci95": [
+        -0.02,
+        0.6421
+      ],
+      "human_boot_draws": 10000,
+      "judge_n_items": 20,
+      "judge_unanimous": "9/20",
+      "judge_weighted_A": 0.8167,
+      "judge_ac1": 0.2865,
+      "judge_ac1_ci95": [
+        0.0011,
+        0.5977
+      ],
+      "judge_boot_draws": 10000
+    },
+    {
+      "domain": "career_selfimprovement",
+      "human_n_items": 20,
+      "human_ac1_pooled": 0.2413,
+      "human_ac1_ci95": [
+        -0.0561,
+        0.562
+      ],
+      "human_boot_draws": 10000,
+      "judge_n_items": 20,
+      "judge_unanimous": "2/20",
+      "judge_weighted_A": 0.7,
+      "judge_ac1": -0.08,
+      "judge_ac1_ci95": [
+        -0.2645,
+        0.1788
+      ],
+      "judge_boot_draws": 10000
+    }
+  ],
+  "ac1_differences": [
+    {
+      "side": "human",
+      "a": "general_education",
+      "b": "tech_ai",
+      "difference": 0.3701,
+      "ci95": [
+        -0.0362,
+        0.7688
+      ],
+      "excludes_zero": false
+    },
+    {
+      "side": "judge",
+      "a": "general_education",
+      "b": "tech_ai",
+      "difference": 0.6423,
+      "ci95": [
+        0.3095,
+        0.9375
+      ],
+      "excludes_zero": true
+    },
+    {
+      "side": "human",
+      "a": "general_education",
+      "b": "career_selfimprovement",
+      "difference": 0.4552,
+      "ci95": [
+        0.0402,
+        0.8033
+      ],
+      "excludes_zero": true
+    },
+    {
+      "side": "judge",
+      "a": "general_education",
+      "b": "career_selfimprovement",
+      "difference": 1.0087,
+      "ci95": [
+        0.7287,
+        1.2104
+      ],
+      "excludes_zero": true
+    },
+    {
+      "side": "human",
+      "a": "tech_ai",
+      "b": "career_selfimprovement",
+      "difference": 0.0852,
+      "ci95": [
+        -0.3935,
+        0.523
+      ],
+      "excludes_zero": false
+    },
+    {
+      "side": "judge",
+      "a": "tech_ai",
+      "b": "career_selfimprovement",
+      "difference": 0.3665,
+      "ci95": [
+        -0.0092,
+        0.7339
+      ],
+      "excludes_zero": false
+    }
+  ],
+  "human_ac1_cohort_shift": [
+    {
+      "domain": "general_education",
+      "ac1_round1": 0.6308,
+      "ac1_round2": 0.7561,
+      "difference": -0.1253,
+      "ci95": [
+        -0.6141,
+        0.3113
+      ],
+      "excludes_zero": false
+    },
+    {
+      "domain": "tech_ai",
+      "ac1_round1": 0.6308,
+      "ac1_round2": -0.0256,
+      "difference": 0.6564,
+      "ci95": [
+        0.0284,
+        1.1078
+      ],
+      "excludes_zero": true
+    },
+    {
+      "domain": "career_selfimprovement",
+      "ac1_round1": 0.3333,
+      "ac1_round2": 0.2336,
+      "difference": 0.0998,
+      "ci95": [
+        -0.4496,
+        0.7159
+      ],
+      "excludes_zero": false
+    }
+  ],
+  "bootstrap": {
+    "n_requested": 10000,
+    "seed": 0,
+    "note": "resampled over items; draws collapsing to a single observed category are dropped"
+  }
+}

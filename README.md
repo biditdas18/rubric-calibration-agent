@@ -26,6 +26,16 @@ Bidit Das — Independent Researcher, July 2026
 Available on SSRN: https://ssrn.com/abstract=7025019
 DOI: https://dx.doi.org/10.2139/ssrn.7025019
 
+**Accepted** at ATRACC 2026 — the 3rd Symposium on AI Trustworthiness and Risk Assessment for
+Challenged Contexts, AAAI 2026 Fall Symposium Series. The accepted version, revised to report the
+human validation at n=20 per domain and to add the majority-class baseline correction, is
+[`papers/crucible_atracc2026.pdf`](papers/crucible_atracc2026.pdf) (source `.tex` alongside it;
+building it needs the AAAI-27 author kit, which is not redistributed here).
+
+> **Note on the SSRN preprint and `papers/crucible.tex`.** Both predate the n=20 human validation
+> and report a between-domain match-rate contrast that the analysis in Results below supersedes.
+> Read `papers/crucible_atracc2026.pdf` for the corrected claims.
+
 ---
 
 ## Results
@@ -43,24 +53,53 @@ weighted agreement is inflated by label prevalence, so we report Fleiss' kappa a
 
 The three domains separate cleanly under chance correction. General Education's agreement is
 genuine (AC1 = 0.93; κ ≈ 0 is the prevalence paradox under a ~97%-one-class distribution).
-Technology & AI shows fair agreement and was the one domain a rubric revision helped — but a
-subsequent human validation study (30 independent Prolific annotators, 10 per domain) found that
-this domain's high automated agreement (81.7%) masked a systematic divergence from human
-judgment: human consensus matched CRUCIBLE's calibrated labels only 50% of the time, identical
-to the stagnated Career domain. General Education's convergence was independently supported:
-human consensus matched CRUCIBLE's labels 90% of the time. Career & Self-Improvement sits at
+Technology & AI shows fair agreement and was the one domain a rubric revision helped — but its
+81.7% weighted agreement corresponds to a chance-corrected AC1 of only 0.286, and the human
+validation study below shows why that matters. Career & Self-Improvement sits at
 the floor of the weighted metric with below-chance agreement — one judge (Qwen 2.5) applies a
 co-occurrence criterion inconsistently with the other two. A judge-replacement test confirmed this
 is panel-specific: replacing Qwen raised inter-judge agreement to 88.3%, but the panel's
 majority-vote output was mechanically identical (0 of 20 labels changed), because the two
 retained judges already agreed on 90% of transcripts.
 
-**The paper's central finding:** automated inter-judge convergence is not sufficient evidence of
-alignment with human judgment. A domain can converge confidently while its labels diverge from
-independent human assessment, and interventions that raise agreement can do so without changing
-the underlying output at all. Full analysis — including human validation, frontier-model comparison,
-reasoning-before-label ablation, held-out generalization, and rubric portability tests — is in the
-CRUCIBLE paper linked above.
+### Human validation — 20 transcripts per domain, two disjoint cohorts
+
+The full corpus was scored by human annotators: 20 transcripts per domain, run in two rounds of
+10, each round recruiting three annotators per domain (18 in total) with no annotator appearing in
+more than one round or domain. Round 1 covers the even global transcript indices, round 2 the odd.
+
+Every rating is in one file — [`gold-sampled-dataset/human_validation_all_rounds.csv`](gold-sampled-dataset/human_validation_all_rounds.csv)
+— and [`src/agents/exp_b14_human_validation_n20.py`](src/agents/exp_b14_human_validation_n20.py)
+reproduces every number below from it, with the bootstrap seed fixed:
+
+| Domain | Human AC1 r1 / r2 | Pooled AC1 (95% CI) | Judge AC1 | vs CRUCIBLE r1 / r2 | Majority-class baseline |
+|---|---|---|---|---|---|
+| General Education | 0.631 / 0.756 | 0.697 [0.43, 0.89] | +0.929 | 90% / 100% | 100% |
+| Technology & AI | 0.631 / −0.026 | 0.327 [−0.02, 0.64] | +0.286 | 50% / **80%** | 60% |
+| Career & Self-Improvement | 0.333 / 0.234 | 0.241 [−0.06, 0.56] | −0.080 | 50% / 80% | 90% |
+
+Two results follow, and both **supersede** the n=10 analysis in the SSRN preprint:
+
+1. **Match against human consensus is uninformative in this design.** Because each domain's
+   labels are heavily skewed to one class, a rater who labels everything with that class scores
+   100% / 60% / 90%. Only 1 of the 6 domain-round cells beats its own baseline, and the pooled
+   rate of 45/60 = 75% is *below* the pooled baseline of 83%. The between-domain match contrast
+   reported earlier (90% vs 50%) is prevalence-dominated and does not survive this correction.
+   Doubling the sample independently failed to replicate it: Technology & AI moved 50% → 80%.
+2. **Judge and human reliability rank the domains identically** (0.929 / 0.286 / −0.080 against
+   0.697 / 0.327 / 0.241). The judges find difficult what the humans find difficult, which is
+   evidence *against* reading the panel's failures as misalignment.
+
+**The corrected central finding** is about the stopping criterion, not the judges. The weighted
+agreement metric `A = (u + ⅔(N−u))/N` has a floor of 0.667 at zero unanimity, so a threshold of
+τ = 0.80 is satisfied at just 8 of 20 unanimous items — the loop halts and reports convergence
+while 60% of items still carry judge disagreement. Technology & AI's "converged" 81.7% is a
+chance-corrected 0.286. Any stopping rule defined on an agreement statistic with a non-zero floor
+halts at a chance-corrected level fixed by that floor, so τ must be set relative to the floor
+rather than on the unit interval.
+
+Full analysis — including the frontier-model comparison, reasoning-before-label ablation,
+held-out generalization, and rubric portability tests — is in the papers under `papers/`.
 
 ---
 
@@ -115,13 +154,24 @@ rubric-calibration-agent/
 │   ├── calibration_loop.py     # Main entry point — runs the loop
 │   ├── judge_agent.py          # Three local LLM judges (Ollama)
 │   ├── coordinator_agent.py    # Claude Sonnet rubric fixer
-│   └── rubrics.json            # Starting rubric (pre-calibration)
+│   ├── rubrics.json            # Starting rubric (pre-calibration)
+│   └── exp_b14_human_validation_n20.py   # Reproduces every n=20 human number
 ├── data/
 │   └── review_queue.csv        # Input transcripts (domain + text)
+├── gold-sampled-dataset/
+│   ├── human_validation_all_rounds.csv        # ALL human ratings, both rounds
+│   ├── human_validation_ground_truth_n20.csv  # Per-item consensus, all 60
+│   └── human_validation_ground_truth.csv      # Round-1 only (n=30, kept)
 ├── reports/rubric_calibration/
 │   ├── calibrated_rubrics.json # Output: use these for labeling
 │   ├── calibrated_labels.csv   # Silver labels from final iteration
 │   └── calibration_summary.json# Full run log + agreement history
+├── results/
+│   └── human_validation_n20.json  # AC1, baselines, bootstrap CIs
+├── papers/
+│   ├── crucible_atracc2026.pdf # Accepted ATRACC 2026 version (current)
+│   ├── crucible.tex            # Long manuscript (predates n=20; superseded)
+│   └── fig_reliability.pdf     # Judge vs human reliability figure
 └── requirements.txt
 ```
 
