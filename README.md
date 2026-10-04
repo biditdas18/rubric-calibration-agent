@@ -32,9 +32,17 @@ human validation at n=20 per domain and to add the majority-class baseline corre
 [`papers/crucible_atracc2026.pdf`](papers/crucible_atracc2026.pdf) (source `.tex` alongside it;
 building it needs the AAAI-27 author kit, which is not redistributed here).
 
-> **Note on the SSRN preprint and `papers/crucible.tex`.** Both predate the n=20 human validation
-> and report a between-domain match-rate contrast that the analysis in Results below supersedes.
-> Read `papers/crucible_atracc2026.pdf` for the corrected claims.
+> **Two papers, both current.** [`papers/crucible_atracc2026.pdf`](papers/crucible_atracc2026.pdf)
+> is the 8-page accepted symposium version. [`papers/crucible.pdf`](papers/crucible.pdf) is the
+> extended 34-page manuscript — the same analysis plus the appendices, the downstream SNR
+> classifier case study, and the full derivations. Both report the n=20 human validation and the
+> baseline-corrected analysis described under Results below; the extended manuscript opens with a
+> "Note on this version" listing what changed from the earlier preprint and which analyses still
+> score against the original 30-item human reference.
+>
+> The SSRN posting (abstract 7025019) is the extended manuscript. A revision matching
+> `papers/crucible.pdf` has been submitted; until SSRN processes it, the copy here is the current
+> one and the posted version may still show the superseded match-rate claim.
 
 ---
 
