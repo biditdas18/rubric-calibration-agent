@@ -14,6 +14,7 @@
 
 \documentclass[letterpaper]{article}
 \usepackage{aaai2027}
+\copyrightyear{2026}
 \usepackage[hyphens]{url}
 \usepackage{graphicx}
 \urlstyle{rm}
@@ -106,9 +107,12 @@ accompanying warning that a stopping rule defined on an uncorrected agreement
 metric will terminate before agreement has been achieved. For a safety-critical
 evaluation pipeline, this is the risk-relevant contribution: an operator
 reading 81.7\% agreement as convergence is reading a number whose floor is
-66.7\%. Code and calibration logs are available at
-\url{https://github.com/biditdas18/rubric-calibration-agent}.
+66.7\%.
 \end{abstract}
+
+\begin{links}
+\link{Code, data, rubrics, consolidated human ratings and reproduction script}{https://github.com/biditdas18/rubric-calibration-agent}
+\end{links}
 
 \section{Introduction}
 
@@ -389,11 +393,7 @@ motivational phrasing, regardless of co-occurring procedural content.
 
 \begin{table}[tb]
 \centering
-\caption{Calibration results per domain. $\kappa$ is Fleiss' $\kappa$
-\citep{fleiss1971} and AC1 is Gwet's AC1 \citep{gwet2008}, both computed over
-the three judges' labels.}
-\label{tab:results}
-\small
+{\small
 \begin{tabular}{lccc}
 \toprule
 \textbf{Domain} & \textbf{Best} $A$ & $\kappa$ & \textbf{AC1} \\
@@ -402,17 +402,16 @@ General Education    & 96.7\% & $-0.034$ & $+0.929$ \\
 Technology \& AI     & 81.7\% & $+0.246$ & $+0.286$ \\
 Career \& S-I        & 70.0\% & $-0.350$ & $-0.080$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
+\caption{Calibration results per domain. $\kappa$ is Fleiss' $\kappa$
+\citep{fleiss1971} and AC1 is Gwet's AC1 \citep{gwet2008}, both computed over
+the three judges' labels.}
+\label{tab:results}
 \end{table}
 
 \begin{table}[tb]
 \centering
-\caption{Weighted agreement (\%) per domain across iterations. Career's
-second revision (v2) regressed at iteration 3 and was not retained; the final
-output is v1 (70.0\%, iteration 2). A check mark marks a domain at or above
-$\tau = 0.80$.}
-\label{tab:trajectory}
-\small
+{\small
 \begin{tabular}{lccc}
 \toprule
 \textbf{Iter.} & \textbf{Career \& SI} & \textbf{Tech \& AI} &
@@ -423,7 +422,12 @@ $\tau = 0.80$.}
 3     & 68.4 (regressed)     & 81.7 \checkmark & 96.7 \checkmark \\
 4--10 & 68.4 (no further gain) & 81.7 \checkmark & 96.7 \checkmark \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
+\caption{Weighted agreement (\%) per domain across iterations. Career's
+second revision (v2) regressed at iteration 3 and was not retained; the final
+output is v1 (70.0\%, iteration 2). A check mark marks a domain at or above
+$\tau = 0.80$.}
+\label{tab:trajectory}
 \end{table}
 
 We report Fleiss' $\kappa$ \citep{fleiss1971} and Gwet's AC1
@@ -495,19 +499,7 @@ substantive or generic.
 
 \begin{table}[tb]
 \centering
-\caption{Human validation at 20 transcripts per domain, scored by two disjoint
-cohorts of three annotators (round~1 and round~2). AC1 is Gwet's AC1 among the three annotators
-within a domain-round. Pooled over all 20 items, with 95\% percentile
-bootstrap CIs (10{,}000 resamples over items), AC1 is $0.70$
-$[0.43, 0.89]$ for General Education, $0.33$ $[-0.02, 0.64]$ for
-Technology \& AI, and $0.24$ $[-0.06, 0.56]$ for Career \&
-Self-Improvement.
-``vs.\ CRUC.'' is the share of transcripts where human majority-vote consensus
-matches CRUCIBLE's calibrated label. ``Base'' is the majority-class baseline:
-the score a rater achieves by labelling every item with the domain's dominant
-system-label class. Bold marks the only cell that exceeds its own baseline.}
-\label{tab:humanval}
-\footnotesize
+{\footnotesize
 \setlength{\tabcolsep}{3.5pt}
 \begin{tabular}{@{}llccc@{}}
 \toprule
@@ -523,7 +515,19 @@ Career \& S-I   & 1 & $0.33$    & 50\%           & 90\%  \\
 \midrule
 \textbf{Overall} & & ---        & \textbf{75\%}  & 83\%  \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
+\caption{Human validation at 20 transcripts per domain, scored by two disjoint
+cohorts of three annotators (round~1 and round~2). AC1 is Gwet's AC1 among the three annotators
+within a domain-round. Pooled over all 20 items, with 95\% percentile
+bootstrap CIs (10{,}000 resamples over items), AC1 is $0.70$
+$[0.43, 0.89]$ for General Education, $0.33$ $[-0.02, 0.64]$ for
+Technology \& AI, and $0.24$ $[-0.06, 0.56]$ for Career \&
+Self-Improvement.
+``vs.\ CRUC.'' is the share of transcripts where human majority-vote consensus
+matches CRUCIBLE's calibrated label. ``Base'' is the majority-class baseline:
+the score a rater achieves by labelling every item with the domain's dominant
+system-label class. Bold marks the only cell that exceeds its own baseline.}
+\label{tab:humanval}
 \end{table}
 
 \begin{figure}[tb]
@@ -934,10 +938,12 @@ whose scale is known---an automated judge panel reporting agreement above a
 threshold is making a claim only as strong as the floor of the metric
 thresholded.
 
-\section{Code and Data Availability}
-Code, data, rubrics, consolidated human ratings (60 transcripts, both
-cohorts) and the reproduction script:
-\url{https://github.com/biditdas18/rubric-calibration-agent}.
+\section{Acknowledgements}
+
+The author thanks the Prolific annotators whose judgments constitute the human
+validation study, and the anonymous ATRACC reviewers, whose questions about the
+statistical strength of the original comparison prompted the enlarged human
+study reported here.
 
 \bibliography{references}
 
