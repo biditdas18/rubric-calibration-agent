@@ -1,0 +1,3 @@
+# dependencies for reproduce.py (cost analysis verification)
+pandas
+tiktoken
